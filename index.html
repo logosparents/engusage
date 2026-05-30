@@ -52,27 +52,28 @@
 
       /* Control each page block as a strict unit to prevent overflow leaking */
       #print-page-1, #print-page-2, #print-page-3, #print-page-4 {
+        box-sizing: border-box !important;
+        position: relative !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-        height: 270mm !important; /* Precise safe height for standard A4 printable area */
-        position: relative !important;
       }
       
-      /* Explicit forced page break with elegant top spacing */
+      /* Force strict page cuts only after page 1, 2 and 3 */
+      #print-page-1, #print-page-2, #print-page-3 {
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+      
+      /* Elegant top spacing on newly broken pages for clean print header margins */
       #print-page-2, #print-page-3, #print-page-4 {
-        page-break-before: always !important;
-        break-before: page !important;
-        padding-top: 1.2cm !important; /* Safe and clean header margin for printed sheets */
+        padding-top: 1.2cm !important; 
       }
       
       /* Eliminate Tailwind margins/paddings that cause automatic page overflow */
       section, div, p {
         margin-bottom: 0.25cm !important;
       }
-      .mb-10, .mb-8, .mb-6, .mb-4, .mb-4 {
+      .mb-10, .mb-8, .mb-6, .mb-4, .mb-2 {
         margin-bottom: 0.2cm !important;
       }
       .mt-12, .mt-10, .mt-6 {
@@ -369,7 +370,7 @@
       </div>
 
       <!-- ==========================================
-           PAGE 4: PART E & END OF PAPER
+           PAGE 4: PART E & END OF PAPER & FOOTER
            ========================================== -->
       <div id="print-page-4">
         <section class="mb-2">
@@ -400,15 +401,15 @@
           </div>
         </section>
 
-        <!-- END OF PAPER FLAG (Always stays on Page 4 bottom) -->
+        <!-- END OF PAPER FLAG (Always stays inside Page 4) -->
         <div class="text-center mt-6 py-2 border-t border-b border-dashed border-slate-300">
           <span class="font-bold text-slate-500 tracking-widest font-handwriting text-base uppercase">* * * End of Paper * * *</span>
         </div>
-      </div>
 
-      <!-- EXAM FOOTER (Only visible when printing) -->
-      <div class="hidden print:block text-center text-[10px] text-slate-400 mt-4 pt-2 border-t border-slate-100">
-        2025-26 English FS1 Usage Summative Assessment Revision Paper &copy; HKCCCU Logos Academy
+        <!-- EXAM FOOTER (Brought inside print-page-4 to guarantee strict 4 pages with no trailing whitespace) -->
+        <div class="hidden print:block text-center text-[10px] text-slate-400 mt-4 pt-2 border-t border-slate-100">
+          2025-26 English FS1 Usage Summative Assessment Revision Paper &copy; HKCCCU Logos Academy
+        </div>
       </div>
 
     </div>
