@@ -15,12 +15,16 @@
     .font-handwriting {
       font-family: 'Short Stack', cursive, sans-serif;
     }
-    /* Print Styles */
+    
+    /* -----------------------------------------------------------
+       PRINT-SPECIFIC STYLES (Strict A4 4-Page Layout - No Blank Pages)
+       ----------------------------------------------------------- */
     @media print {
       body {
         background-color: white !important;
         color: black !important;
-        font-size: 11pt !important;
+        font-size: 10.5pt !important; /* Slightly smaller base font for perfect safety */
+        line-height: 1.35 !important;
       }
       .no-print {
         display: none !important;
@@ -37,7 +41,61 @@
         border: none !important;
         padding: 0 !important;
         margin: 0 !important;
+        box-shadow: none !important;
       }
+      
+      /* Reset main wrapper padding during printing */
+      #exam-sheet {
+        padding: 0 !important;
+        border: none !important;
+      }
+
+      /* Control each page block as a strict unit to prevent overflow leaking */
+      #print-page-1, #print-page-2, #print-page-3, #print-page-4 {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        height: 270mm !important; /* Precise safe height for standard A4 printable area */
+        position: relative !important;
+      }
+      
+      /* Explicit forced page break with elegant top spacing */
+      #print-page-2, #print-page-3, #print-page-4 {
+        page-break-before: always !important;
+        break-before: page !important;
+        padding-top: 1.2cm !important; /* Safe and clean header margin for printed sheets */
+      }
+      
+      /* Eliminate Tailwind margins/paddings that cause automatic page overflow */
+      section, div, p {
+        margin-bottom: 0.25cm !important;
+      }
+      .mb-10, .mb-8, .mb-6, .mb-4, .mb-4 {
+        margin-bottom: 0.2cm !important;
+      }
+      .mt-12, .mt-10, .mt-6 {
+        margin-top: 0.2cm !important;
+      }
+      .py-6, .py-8, .py-12 {
+        padding-top: 0.15cm !important;
+        padding-bottom: 0.15cm !important;
+      }
+      
+      /* Adjust handwriting container (Part C) for print */
+      .border-2.border-dashed {
+        padding: 0.4cm !important;
+        margin-top: 0.2cm !important;
+        border-width: 1px !important;
+      }
+
+      /* Tighten text elements */
+      .leading-loose, .leading-relaxed {
+        line-height: 1.35 !important;
+      }
+      
+      /* Strict standard sizing for printed blanks */
       .input-blank {
         border-bottom: 1px black dashed !important;
         border-top: none !important;
@@ -50,7 +108,7 @@
         text-align: center;
       }
       .input-blank-large {
-        width: 180px !important;
+        width: 170px !important;
         border-bottom: 1px black dashed !important;
         border-top: none !important;
         border-left: none !important;
@@ -60,11 +118,9 @@
         display: inline-block !important;
         text-align: center;
       }
-      .page-break {
-        page-break-before: always;
-      }
     }
-    /* Custom input line for interactive mode */
+    
+    /* Interactive input styles in web view */
     .interactive-input {
       border-bottom: 2px solid #cbd5e1;
       transition: all 0.2s ease;
@@ -73,7 +129,6 @@
       border-bottom-color: #6366f1;
       outline: none;
     }
-    /* Keyframe animation for stars */
     @keyframes bounce-slow {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-4px); }
@@ -85,7 +140,7 @@
 </head>
 <body class="bg-indigo-50/40 text-slate-800 min-h-screen pb-12">
 
-  <!-- Top Bar for Settings & Actions (Hidden during Printing) -->
+  <!-- Top Bar (Hidden in PDF Print out) -->
   <header class="no-print sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-indigo-100 shadow-sm px-4 py-3">
     <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-2">
@@ -166,189 +221,200 @@
   <main class="max-w-4xl mx-auto px-4 py-6 md:py-8 print-page">
     <div id="exam-sheet" class="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-12 exam-container transition-all">
       
-      <!-- EXAM HEADER -->
-      <div class="border-b-4 border-double border-slate-800 pb-6 mb-8 text-center">
-        <div class="text-sm font-bold tracking-wider text-slate-600 uppercase">HKCCCU Logos Academy</div>
-        <div class="text-xs text-slate-500 mt-0.5">2025-2026 English Language - FS1 (Primary 2)</div>
-        <h2 class="text-2xl font-black text-slate-900 mt-1.5 tracking-tight">Second Summative Assessment - Revision Paper</h2>
-        <div class="text-sm font-bold text-indigo-700 mt-1 uppercase tracking-wide">Section II: Usage (Total Marks: 50)</div>
-        
-        <!-- Student Info Fields -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 text-sm text-left max-w-2xl mx-auto font-semibold bg-slate-50 p-4 rounded-2xl border border-slate-100">
-          <div class="flex items-center gap-2">
-            <span>Name:</span>
-            <input type="text" placeholder="__________________" class="bg-transparent border-none focus:outline-none w-full font-handwriting text-indigo-600">
-          </div>
-          <div class="flex items-center gap-2">
-            <span>Class:</span>
-            <span class="text-slate-500 font-normal font-handwriting">FS1 ( <input type="text" placeholder="   " class="w-8 text-center bg-transparent focus:outline-none border-b border-dashed border-slate-400 font-handwriting text-indigo-600"> )</span>
-          </div>
-          <div class="flex items-center gap-2 col-span-1">
-            <span>Class No.:</span>
-            <input type="text" placeholder="_____" class="bg-transparent border-none focus:outline-none w-12 text-center font-handwriting text-indigo-600">
-          </div>
-          <div class="flex items-center justify-end text-rose-600 font-bold">
-            <span>Score: &nbsp;_____ / 50</span>
+      <!-- ==========================================
+           PAGE 1: HEADER, PART A, PART B 
+           ========================================== -->
+      <div id="print-page-1">
+        <!-- EXAM HEADER -->
+        <div class="border-b-4 border-double border-slate-800 pb-4 mb-6 text-center">
+          <div class="text-sm font-bold tracking-wider text-slate-600 uppercase">HKCCCU Logos Academy</div>
+          <div class="text-xs text-slate-500 mt-0.5">2025-2026 English Language - FS1 (Primary 2)</div>
+          <h2 class="text-xl font-black text-slate-900 mt-1 tracking-tight">Second Summative Assessment - Revision Paper</h2>
+          <div class="text-xs font-bold text-indigo-700 mt-0.5 uppercase tracking-wide">Section II: Usage (Total Marks: 50)</div>
+          
+          <!-- Student Info Fields -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 text-xs text-left max-w-2xl mx-auto font-semibold bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <div class="flex items-center gap-2">
+              <span>Name:</span>
+              <input type="text" placeholder="__________________" class="bg-transparent border-none focus:outline-none w-full font-handwriting text-indigo-600">
+            </div>
+            <div class="flex items-center gap-2">
+              <span>Class:</span>
+              <span class="text-slate-500 font-normal font-handwriting">FS1 ( <input type="text" placeholder="   " class="w-8 text-center bg-transparent focus:outline-none border-b border-dashed border-slate-400 font-handwriting text-indigo-600"> )</span>
+            </div>
+            <div class="flex items-center gap-2 col-span-1">
+              <span>Class No.:</span>
+              <input type="text" placeholder="_____" class="bg-transparent border-none focus:outline-none w-12 text-center font-handwriting text-indigo-600">
+            </div>
+            <div class="flex items-center justify-end text-rose-600 font-bold">
+              <span>Score: &nbsp;_____ / 50</span>
+            </div>
           </div>
         </div>
+
+        <!-- PART A: VERB TO BE AND VERB TO HAVE -->
+        <section class="mb-6">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">A</span>
+                Part A: Verb "to be" & Verb "to have"
+              </h3>
+              <p class="text-xs text-slate-500 ml-8">Fill in the blanks with correct forms (8 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">8 Marks</span>
+            </div>
+          </div>
+
+          <div class="ml-8 p-2.5 bg-indigo-50/50 rounded-xl border border-indigo-100/50 mb-3 no-print text-xs">
+            <span class="font-bold text-indigo-800">Word Bank:</span> 
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1.5 text-[11px]">is</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">am</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">are</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">isn't</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">aren't</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">has</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">have</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">hasn't</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">haven't</span>
+          </div>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+            <p class="leading-relaxed text-sm md:text-base text-slate-800" id="part-a-text">
+              <!-- Dynamic Injection -->
+            </p>
+          </div>
+        </section>
+
+        <!-- PART B: PRONOUNS AND POSSESSIVE ADJECTIVES -->
+        <section class="mb-2">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">B</span>
+                Part B: Subject, Object Pronouns & Possessive Adjectives
+              </h3>
+              <p class="text-xs text-slate-500 ml-8">Fill in the blanks with correct pronouns or possessive adjectives (10 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
+            </div>
+          </div>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+            <p class="leading-relaxed text-sm md:text-base text-slate-800" id="part-b-text">
+              <!-- Dynamic Injection -->
+            </p>
+          </div>
+        </section>
       </div>
 
-      <!-- PART A: VERB TO BE AND VERB TO HAVE -->
-      <section class="mb-10">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
-              <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">A</span>
-              Part A: Verb "to be" & Verb "to have"
-            </h3>
-            <p class="text-xs text-slate-500 ml-9">Fill in the blanks with correct forms (8 marks, 2 marks each).</p>
+      <!-- ==========================================
+           PAGE 2: PART C (Present Simple Tense)
+           ========================================== -->
+      <div id="print-page-2">
+        <section class="mb-2">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">C</span>
+                Part C: Present Simple Tense
+              </h3>
+              <p class="text-xs text-slate-500 ml-8" id="part-c-instruction">Read the letter. Fill in the blanks with correct verb forms (10 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
+            </div>
           </div>
-          <div class="text-right">
-            <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-1 rounded-md">8 Marks</span>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-5 shadow-sm font-handwriting border-2 border-dashed border-indigo-200">
+            <div class="text-right text-xs text-slate-500">Date: <span id="current-date">30th May 2026</span></div>
+            <div class="text-base font-bold mb-3" id="part-c-salutation">Dear Shirley,</div>
+            
+            <p class="leading-relaxed text-sm md:text-base text-slate-800 whitespace-pre-line" id="part-c-text">
+              <!-- Dynamic Injection -->
+            </p>
+
+            <div class="mt-4 text-sm" id="part-c-signoff">
+              Warm regards,<br>
+              <span class="font-bold">Betty</span>
+            </div>
           </div>
-        </div>
+        </section>
+      </div>
 
-        <div class="ml-9 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 mb-4 no-print text-sm">
-          <span class="font-bold text-indigo-800">Word Bank (可以填寫):</span> 
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-2 text-xs">is</span>
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-1 text-xs">am</span>
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-1 text-xs">are</span>
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-1 text-xs">isn't</span>
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-1 text-xs">aren't</span>
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-1 text-xs">has</span>
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-1 text-xs">have</span>
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-1 text-xs">hasn't</span>
-          <span class="font-mono bg-white px-2 py-1 rounded border shadow-sm ml-1 text-xs">haven't</span>
-        </div>
-
-        <div class="ml-9 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-          <p class="leading-relaxed text-base md:text-lg text-slate-800" id="part-a-text">
-            <!-- Dynamic Injection -->
-          </p>
-        </div>
-      </section>
-
-      <!-- PART B: PRONOUNS AND POSSESSIVE ADJECTIVES -->
-      <section class="mb-10">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
-              <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">B</span>
-              Part B: Subject, Object Pronouns & Possessive Adjectives
-            </h3>
-            <p class="text-xs text-slate-500 ml-9">Fill in the blanks with correct pronouns or possessive adjectives (10 marks, 2 marks each).</p>
+      <!-- ==========================================
+           PAGE 3: PART D (Present Continuous Tense)
+           ========================================== -->
+      <div id="print-page-3">
+        <section class="mb-2">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">D</span>
+                Part D: Present Continuous Tense
+              </h3>
+              <p class="text-xs text-slate-500 ml-8" id="part-d-instruction">Emily and Ada are talking now. Fill in the blanks with the correct form of verbs in brackets (10 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
+            </div>
           </div>
-          <div class="text-right">
-            <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-1 rounded-md">10 Marks</span>
-          </div>
-        </div>
 
-        <div class="ml-9 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-          <p class="leading-relaxed text-base md:text-lg text-slate-800" id="part-b-text">
-            <!-- Dynamic Injection -->
-          </p>
-        </div>
-      </section>
-
-      <!-- PAGE BREAK FOR CLEAN PRINTING IF NEEDED -->
-      <div class="page-break"></div>
-
-      <!-- PART C: PRESENT SIMPLE -->
-      <section class="mb-10 pt-4 print:pt-0">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
-              <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">C</span>
-              Part C: Present Simple Tense
-            </h3>
-            <p class="text-xs text-slate-500 ml-9" id="part-c-instruction">Read the letter. Fill in the blanks with correct verb forms (10 marks, 2 marks each).</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-1 rounded-md">10 Marks</span>
-          </div>
-        </div>
-
-        <div class="ml-9 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm font-handwriting border-2 border-dashed border-indigo-200">
-          <div class="text-right text-sm text-slate-500">Date: <span id="current-date">30th May 2026</span></div>
-          <div class="text-lg font-bold mb-4" id="part-c-salutation">Dear Shirley,</div>
-          
-          <p class="leading-loose text-base md:text-lg text-slate-800 whitespace-pre-line" id="part-c-text">
-            <!-- Dynamic Injection -->
-          </p>
-
-          <div class="mt-6 text-base" id="part-c-signoff">
-            Warm regards,<br>
-            <span class="font-bold">Betty</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- PART D: PRESENT CONTINUOUS -->
-      <section class="mb-10">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
-              <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">D</span>
-              Part D: Present Continuous Tense
-            </h3>
-            <p class="text-xs text-slate-500 ml-9" id="part-d-instruction">Emily and Ada are talking now. Fill in the blanks with the correct form of verbs in brackets (10 marks, 2 marks each).</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-1 rounded-md">10 Marks</span>
-          </div>
-        </div>
-
-        <div class="ml-9 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4" id="part-d-dialogue">
-          <!-- Dynamic Injection -->
-        </div>
-      </section>
-
-      <!-- PAGE BREAK FOR CLEAN PRINTING IF NEEDED -->
-      <div class="page-break"></div>
-
-      <!-- PART E: VOCABULARY -->
-      <section class="mb-6 pt-4 print:pt-0">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
-              <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">E</span>
-              Part E: Vocabulary (School Life)
-            </h3>
-            <p class="text-xs text-slate-500 ml-9">Choose the correct words from the box below to complete the story (12 marks, 2 marks each).</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-1 rounded-md">12 Marks</span>
-          </div>
-        </div>
-
-        <!-- Vocabulary Pool Box (Must be exactly 8 words, student chooses 6) -->
-        <div class="ml-9 border-2 border-indigo-200 bg-indigo-50/30 rounded-2xl p-5 mb-6">
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center" id="vocab-bank">
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-3" id="part-d-dialogue">
             <!-- Dynamic Injection -->
           </div>
-        </div>
+        </section>
+      </div>
 
-        <div class="ml-9 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-          <p class="leading-loose text-base md:text-lg text-slate-800 whitespace-pre-line" id="part-e-text">
-            <!-- Dynamic Injection -->
-          </p>
-        </div>
-      </section>
+      <!-- ==========================================
+           PAGE 4: PART E & END OF PAPER
+           ========================================== -->
+      <div id="print-page-4">
+        <section class="mb-2">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">E</span>
+                Part E: Vocabulary (School Life)
+              </h3>
+              <p class="text-xs text-slate-500 ml-8">Choose the correct words from the box below to complete the story (12 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">12 Marks</span>
+            </div>
+          </div>
 
-      <!-- END OF PAPER FLAG -->
-      <div class="text-center my-10 py-4 border-t-2 border-b-2 border-dashed border-slate-300">
-        <span class="font-bold text-slate-600 tracking-widest font-handwriting text-lg uppercase">* * * End of Paper * * *</span>
+          <!-- Vocabulary Pool Box (exactly 8 words, choose 6) -->
+          <div class="ml-8 border border-indigo-200 bg-indigo-50/30 rounded-xl p-3 mb-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center" id="vocab-bank">
+              <!-- Dynamic Injection -->
+            </div>
+          </div>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-5 shadow-sm">
+            <p class="leading-relaxed text-sm md:text-base text-slate-800 whitespace-pre-line" id="part-e-text">
+              <!-- Dynamic Injection -->
+            </p>
+          </div>
+        </section>
+
+        <!-- END OF PAPER FLAG (Always stays on Page 4 bottom) -->
+        <div class="text-center mt-6 py-2 border-t border-b border-dashed border-slate-300">
+          <span class="font-bold text-slate-500 tracking-widest font-handwriting text-base uppercase">* * * End of Paper * * *</span>
+        </div>
       </div>
 
       <!-- EXAM FOOTER (Only visible when printing) -->
-      <div class="hidden print:block text-center text-xs text-slate-400 mt-6 pt-4 border-t border-slate-100">
+      <div class="hidden print:block text-center text-[10px] text-slate-400 mt-4 pt-2 border-t border-slate-100">
         2025-26 English FS1 Usage Summative Assessment Revision Paper &copy; HKCCCU Logos Academy
       </div>
 
     </div>
   </main>
 
-  <!-- Interactive Correction & Explanations Panel (Only visible after clicking check answers) -->
+  <!-- Interactive Correction & Explanations Panel (Only visible in Interactive mode after check answers) -->
   <div id="evaluation-panel" class="no-print hidden max-w-4xl mx-auto px-4 mb-12">
     <div class="bg-white rounded-3xl p-6 shadow-xl border border-indigo-100">
       <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2 mb-4">
@@ -553,10 +619,9 @@
       ],
 
       // PART E: Vocabulary (School Life theme: 6 targets: 12 marks)
-      // Pool words from: "computer", "restaurant", "stride", "policeman", "afterwards", "pavement", "camera", "traffic light", "parcel", "puzzled", "fond", "seat belt", "gymnastics", "knocked", "sorted", "stripy", "helmet", "building", "lorry", "asleep"
       partE: [
         {
-          words: ["fond", "puzzled", "afterwards", "helmet", "gymnastics", "camera", "computer", "parcel"], // 6 correct + 2 distractors
+          words: ["fond", "puzzled", "afterwards", "helmet", "gymnastics", "camera", "computer", "parcel"],
           answers: ["fond", "puzzled", "afterwards", "helmet", "gymnastics", "camera"],
           text: `Today is our special school activity day! In the morning, we happily go to the IT room because all of us are very (1) [E-1] of coding games. Our friendly teacher shows us a cool robotic car, but some students look (2) [E-2] because we do not know how to start it.
 
@@ -677,7 +742,6 @@
       
       let htmlC = dataC.text;
       const cHints = ["go", "like", "have", "sing", "not have", "wake", "clean", "have", "jump", "not like", "visit", "play", "eat", "like", "not write", "stay", "go", "have", "bake", "not watch", "walk", "run", "have", "sing", "not like"];
-      // Extract the correct base verbs based on set index
       const baseVerbs = cHints.slice(currentIndices.c * 5, (currentIndices.c + 1) * 5);
       for (let i = 0; i < 5; i++) {
         htmlC = htmlC.replace(`[C-${i+1}]`, `<input data-part="c" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) (${baseVerbs[i]}) ">`);
@@ -699,7 +763,6 @@
         const row = document.createElement('div');
         row.className = "flex gap-2 text-base md:text-lg leading-relaxed";
         
-        // Dynamically replace [D-x] tags inside speakers' lines
         let processedLineText = line.text;
         for (let i = 0; i < 5; i++) {
           processedLineText = processedLineText.replace(`[D-${i+1}]`, `<input data-part="d" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) (${baseDVerbs[i]}) ">`);
@@ -711,8 +774,6 @@
 
       // Part E
       const dataE = EXAM_DATABASE.partE[currentIndices.e];
-      
-      // Shuffle the word bank display so they appear in a random order in the box
       const shuffledBank = shuffleArray(dataE.words);
       const vocabBankElement = document.getElementById('vocab-bank');
       vocabBankElement.innerHTML = '';
@@ -729,7 +790,6 @@
       }
       document.getElementById('part-e-text').innerHTML = htmlE;
 
-      // Sync styles
       applyInputsState();
     }
 
@@ -824,7 +884,6 @@
         const configAnswers = EXAM_DATABASE[`part${part.toUpperCase()}`][currentIndices[part]].answers;
         let correctAnswers = [configAnswers[idx].toLowerCase()];
 
-        // Add support for alternative short/long negative forms
         if (configAnswers[idx].toLowerCase() === "doesn't have") {
           correctAnswers.push("does not have");
         } else if (configAnswers[idx].toLowerCase() === "isn't running") {
@@ -903,6 +962,7 @@
       panel.classList.remove('hidden');
     }
 
+    // 🔄 Reset form
     function resetInteractiveForm() {
       clearAnswers();
       document.getElementById('score-text').innerText = `-- / 50`;
@@ -910,6 +970,7 @@
       applyInputsState();
     }
 
+    // Apply strict width classes for dynamic placeholders
     function applyInputsState() {
       document.querySelectorAll('#exam-sheet input[data-part]').forEach(input => {
         const isLarge = input.placeholder.includes('climb') || input.placeholder.includes('run') || input.placeholder.includes('write') || input.placeholder.includes('draw') || input.placeholder.includes('sing') || input.placeholder.includes('have') || input.placeholder.includes('play') || input.placeholder.includes('not');
@@ -917,6 +978,7 @@
       });
     }
 
+    // Print wrapper
     function triggerPrint() {
       const currentMode = isInteractiveMode;
       if (currentMode) {
@@ -931,9 +993,7 @@
       }, 300);
     }
 
-    // -----------------------------------------------------------
-    // INITIALIZATION
-    // -----------------------------------------------------------
+    // Init
     window.onload = function() {
       regenerateExam();
     };
