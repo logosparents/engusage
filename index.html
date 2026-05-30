@@ -17,7 +17,7 @@
     }
     
     /* -----------------------------------------------------------
-       PRINT-SPECIFIC STYLES (Strict A4 4-Page Layout - No Blank Pages)
+       PRINT-SPECIFIC STYLES (Strict A4 5-Page Layout - No Blank Pages)
        ----------------------------------------------------------- */
     @media print {
       @page {
@@ -58,26 +58,26 @@
       }
 
       /* Control each page block as a strict unit to prevent overflow leaking */
-      #print-page-1, #print-page-2, #print-page-3, #print-page-4 {
+      #print-page-1, #print-page-2, #print-page-3, #print-page-4, #print-page-5 {
         box-sizing: border-box !important;
         position: relative !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
       }
       
-      /* Force strict page cuts only after page 1, 2 and 3 */
-      #print-page-1, #print-page-2, #print-page-3 {
+      /* Force strict page cuts after pages 1, 2, 3 and 4 */
+      #print-page-1, #print-page-2, #print-page-3, #print-page-4 {
         page-break-after: always !important;
         break-after: page !important;
       }
       
-      #print-page-4 {
+      #print-page-5 {
         page-break-after: avoid !important;
         break-after: avoid !important;
       }
       
       /* Elegant top spacing on newly broken pages for clean print header margins */
-      #print-page-2, #print-page-3, #print-page-4 {
+      #print-page-2, #print-page-3, #print-page-4, #print-page-5 {
         padding-top: 0.6cm !important; 
       }
       
@@ -382,7 +382,7 @@
       </div>
 
       <!-- ==========================================
-           PAGE 4: PART E & END OF PAPER & FOOTER
+           PAGE 4: PART E & END OF PAPER
            ========================================== -->
       <div id="print-page-4">
         <section class="mb-2">
@@ -418,9 +418,101 @@
           <span class="font-bold text-slate-500 tracking-widest font-handwriting text-base uppercase">* * * End of Paper * * *</span>
         </div>
 
-        <!-- EXAM FOOTER (Brought inside print-page-4 to guarantee strict 4 pages with no trailing whitespace) -->
+        <!-- EXAM FOOTER -->
         <div class="hidden print:block text-center text-[10px] text-slate-400 mt-4 pt-2 border-t border-slate-100">
           2025-26 English FS1 Usage Summative Assessment Revision Paper &copy; HKCCCU Logos Academy
+        </div>
+      </div>
+
+      <!-- ==========================================
+           PAGE 5: REFERENCE ANSWER SHEET (TEACHER KEY)
+           ========================================== -->
+      <div id="print-page-5" class="hidden print:block">
+        <div class="border-b-4 border-double border-slate-800 pb-3 mb-6 text-center">
+          <div class="text-xs font-bold tracking-wider text-slate-600 uppercase">HKCCCU Logos Academy</div>
+          <h2 class="text-xl font-black text-slate-900 mt-1 tracking-tight">Second Summative Assessment - Revision Paper</h2>
+          <div class="text-sm font-bold text-rose-600 mt-1 uppercase tracking-wide">Teacher's Reference Answer Key (教師參考答案頁)</div>
+        </div>
+
+        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200/80">
+          <p class="text-xs text-slate-500 mb-4 italic">Note: These answers dynamically correspond to the current randomized question sets (Sets 1 to 5).</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <!-- Left Column: Parts A, B & C -->
+            <div class="space-y-4">
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part A: Verb "to be" & "to have" (8 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-a-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-a-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-a-3" class="text-rose-600 font-bold">---</span></li>
+                  <li>(4) &nbsp;<span id="ans-a-4" class="text-rose-600 font-bold">---</span></li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part B: Pronouns & Possessives (10 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-b-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-b-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-b-3" class="text-rose-600 font-bold">---</span></li>
+                  <li>(4) &nbsp;<span id="ans-b-4" class="text-rose-600 font-bold">---</span></li>
+                  <li>(5) &nbsp;<span id="ans-b-5" class="text-rose-600 font-bold">---</span></li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part C: Present Simple Tense (10 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-c-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-c-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-c-3" class="text-rose-600 font-bold">---</span></li>
+                  <li>(4) &nbsp;<span id="ans-c-4" class="text-rose-600 font-bold">---</span></li>
+                  <li>(5) &nbsp;<span id="ans-c-5" class="text-rose-600 font-bold">---</span> <span class="text-xs text-slate-400 font-normal font-sans">(or does not have)</span></li>
+                </ol>
+              </div>
+            </div>
+
+            <!-- Right Column: Parts D & E -->
+            <div class="space-y-4">
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part D: Present Continuous Tense (10 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-d-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-d-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-d-3" class="text-rose-600 font-bold">---</span> <span class="text-xs text-slate-400 font-normal font-sans">(or is not running/writing/drawing/watching)</span></li>
+                  <li>(4) &nbsp;<span id="ans-d-4" class="text-rose-600 font-bold">---</span></li>
+                  <li>(5) &nbsp;<span id="ans-d-5" class="text-rose-600 font-bold">---</span></li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part E: Vocabulary - School Life (12 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-e-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-e-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-e-3" class="text-rose-600 font-bold">---</span></li>
+                  <li>(4) &nbsp;<span id="ans-e-4" class="text-rose-600 font-bold">---</span></li>
+                  <li>(5) &nbsp;<span id="ans-e-5" class="text-rose-600 font-bold">---</span></li>
+                  <li>(6) &nbsp;<span id="ans-e-6" class="text-rose-600 font-bold">---</span></li>
+                </ol>
+              </div>
+
+              <div class="pt-4 border-t border-slate-200 text-xs text-slate-500">
+                <p class="font-bold">Summary of Key Grammar Rules Tested:</p>
+                <ul class="list-disc list-inside space-y-0.5 mt-1 text-[11px]">
+                  <li>Part A: Singular/plural agreement with "be" & "have got".</li>
+                  <li>Part B: Distinguishing subject/object pronouns & possessives (+noun).</li>
+                  <li>Part C: 3rd person singular -s/-es/-ies endings.</li>
+                  <li>Part D: Short vowel consonant doubling, -ie to -y, and unstressed syllables (-ing).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hidden print:block text-center text-[10px] text-slate-400 mt-12 pt-2 border-t border-slate-100">
+          2025-26 English FS1 Usage Answer Key &copy; HKCCCU Logos Academy
         </div>
       </div>
 
@@ -736,6 +828,8 @@
       let htmlA = dataA.text;
       for (let i = 0; i < 4; i++) {
         htmlA = htmlA.replace(`[A-${i+1}]`, `<input data-part="a" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) ">`);
+        // Sync static Key (Page 5)
+        document.getElementById(`ans-a-${i+1}`).innerText = dataA.answers[i];
       }
       document.getElementById('part-a-text').innerHTML = htmlA;
 
@@ -744,6 +838,8 @@
       let htmlB = dataB.text;
       for (let i = 0; i < 5; i++) {
         htmlB = htmlB.replace(`[B-${i+1}]`, `<input data-part="b" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) ">`);
+        // Sync static Key (Page 5)
+        document.getElementById(`ans-b-${i+1}`).innerText = dataB.answers[i];
       }
       document.getElementById('part-b-text').innerHTML = htmlB;
 
@@ -758,6 +854,8 @@
       const baseVerbs = cHints.slice(currentIndices.c * 5, (currentIndices.c + 1) * 5);
       for (let i = 0; i < 5; i++) {
         htmlC = htmlC.replace(`[C-${i+1}]`, `<input data-part="c" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) (${baseVerbs[i]}) ">`);
+        // Sync static Key (Page 5)
+        document.getElementById(`ans-c-${i+1}`).innerText = dataC.answers[i];
       }
       document.getElementById('part-c-text').innerHTML = htmlC;
       document.getElementById('part-c-signoff').innerHTML = `Warm regards,<br><span class="font-bold">${dataC.sender}</span>`;
@@ -779,6 +877,8 @@
         let processedLineText = line.text;
         for (let i = 0; i < 5; i++) {
           processedLineText = processedLineText.replace(`[D-${i+1}]`, `<input data-part="d" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) (${baseDVerbs[i]}) ">`);
+          // Sync static Key (Page 5)
+          document.getElementById(`ans-d-${i+1}`).innerText = dataD.answers[i];
         }
 
         row.innerHTML = `<span class="font-black text-slate-900 min-w-[70px]">${line.speaker}:</span> <span class="text-slate-800 flex-1">${processedLineText}</span>`;
@@ -800,6 +900,8 @@
       let htmlE = dataE.text;
       for (let i = 0; i < 6; i++) {
         htmlE = htmlE.replace(`[E-${i+1}]`, `<input data-part="e" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) ">`);
+        // Sync static Key (Page 5)
+        document.getElementById(`ans-e-${i+1}`).innerText = dataE.answers[i];
       }
       document.getElementById('part-e-text').innerHTML = htmlE;
 
@@ -817,12 +919,14 @@
       const scorePanel = document.getElementById('interactive-score-panel');
       const evalPanel = document.getElementById('evaluation-panel');
       const toggleAnsBtn = document.getElementById('btn-toggle-answers');
+      const pageFive = document.getElementById('print-page-5');
 
       if (isInteractiveMode) {
         btnInt.className = "px-3 py-1.5 rounded-lg transition-all bg-white text-indigo-600 shadow-sm";
         btnPrt.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-indigo-600";
         scorePanel.classList.remove('hidden');
         toggleAnsBtn.classList.add('hidden');
+        pageFive.classList.add('hidden'); // Hide key in student interactive mode
         
         document.querySelectorAll('#exam-sheet input[data-part]').forEach(input => {
           input.removeAttribute('disabled');
@@ -835,6 +939,7 @@
         scorePanel.classList.add('hidden');
         evalPanel.classList.add('hidden');
         toggleAnsBtn.classList.remove('hidden');
+        pageFive.classList.remove('hidden'); // Show key at the bottom of the page in print preview
         
         isAnswersVisible = false;
         toggleAnsBtn.innerText = "🔑 顯示答案版";
