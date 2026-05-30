@@ -20,11 +20,18 @@
        PRINT-SPECIFIC STYLES (Strict A4 4-Page Layout - No Blank Pages)
        ----------------------------------------------------------- */
     @media print {
-      body {
+      @page {
+        size: A4;
+        margin: 1.2cm 1cm 1.2cm 1cm !important; /* Lock page print boundaries */
+      }
+      html, body {
         background-color: white !important;
         color: black !important;
-        font-size: 10.5pt !important; /* Slightly smaller base font for perfect safety */
+        font-size: 10.5pt !important; /* Clear, professional font size */
         line-height: 1.35 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
       }
       .no-print {
         display: none !important;
@@ -64,36 +71,41 @@
         break-after: page !important;
       }
       
-      /* Elegant top spacing on newly broken pages for clean print header margins */
-      #print-page-2, #print-page-3, #print-page-4 {
-        padding-top: 1.2cm !important; 
+      #print-page-4 {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
       }
       
-      /* Eliminate Tailwind margins/paddings that cause automatic page overflow */
-      section, div, p {
-        margin-bottom: 0.25cm !important;
+      /* Elegant top spacing on newly broken pages for clean print header margins */
+      #print-page-2, #print-page-3, #print-page-4 {
+        padding-top: 0.6cm !important; 
+      }
+      
+      /* Tighten up spacing to eliminate redundant accumulative heights */
+      section, p {
+        margin-bottom: 0.15cm !important;
       }
       .mb-10, .mb-8, .mb-6, .mb-4, .mb-2 {
-        margin-bottom: 0.2cm !important;
+        margin-bottom: 0.1cm !important;
       }
       .mt-12, .mt-10, .mt-6 {
-        margin-top: 0.2cm !important;
+        margin-top: 0.1cm !important;
       }
       .py-6, .py-8, .py-12 {
-        padding-top: 0.15cm !important;
-        padding-bottom: 0.15cm !important;
+        padding-top: 0.1cm !important;
+        padding-bottom: 0.1cm !important;
       }
       
       /* Adjust handwriting container (Part C) for print */
       .border-2.border-dashed {
-        padding: 0.4cm !important;
-        margin-top: 0.2cm !important;
+        padding: 0.3cm !important;
+        margin-top: 0.1cm !important;
         border-width: 1px !important;
       }
 
       /* Tighten text elements */
       .leading-loose, .leading-relaxed {
-        line-height: 1.35 !important;
+        line-height: 1.32 !important;
       }
       
       /* Strict standard sizing for printed blanks */
@@ -939,7 +951,7 @@
 
       const feedbackRules = {
         'a': { title: "Verb 'to be' & 'to have'", note: "<b>單複數配合：</b><br>1. 單數主語（It / My brother / The kitchen）配合 <b>is / has</b>。<br>2. 複數主語（We / My parents / My sister and I）配合 <b>are / have</b>。<br>3. 'Have got' / 'Has got' 用於表達「擁有」。其否定句為 <b>haven't got / hasn't got</b>。" },
-        'b': { title: "Pronouns & Possessives", note: "<b>代詞三格：</b><br>1. <b>主格</b>（He, She, They, We）在動詞前作主語。<br>2. <b>賓格</b>（him, her, us, them, it）在動詞或介詞後（例如：ran after <b>it</b>, take <b>us</b>, returned <b>it</b>）。<br>3. <b>所有格形容詞</b>（His, Her, Their, Our, Its）後面必須緊跟名詞（例如：<b>Its</b> name, <b>our</b> weekend, <b>Her</b> muffins）。" },
+        'b': { title: "Pronouns & Possessives", note: "<b>代詞三格：</b><br>1. <b>主格</b>（He, She, They, We）在動詞前作主語。<br>2. <b>賓格</b>（him, her, us, them, it）在動詞或介詞後（介介：ran after <b>it</b>, take <b>us</b>, returned <b>it</b>）。<br>3. <b>所有格形容詞</b>（His, Her, Their, Our, Its）後面必須緊跟名詞（例如：<b>Its</b> name, <b>our</b> weekend, <b>Her</b> muffins）。" },
         'c': { title: "Present Simple", note: "<b>日常規律與事實：</b><br>1. 當主語是單數第三人稱（My father, My sister, Toby）時，動詞必須加上 <b>-s / -es / -ies</b>（例如：likes, sings, cleans, goes, bakes）。<br>2. 複數主語或第一人稱（I, We, My family and I）時，動詞保留原形。<br>3. 否定式：單數用 <b>doesn't + 動詞原形</b>（例如：doesn't have），複數用 <b>don't</b>。" },
         'd': { title: "Present Continuous (-ing) 規則", note: "<b>現在進行時規則重溫：</b><br>1. <b>雙寫字尾 + ing</b>（短元音+單輔音）：<i>climbing</i> 不雙寫；但 <i>running, sitting, cutting, winning</i> 需要雙寫尾字母。<br>2. <b>去 e 加 ing</b>：<i>writing, baking</i> 等去字尾 e。<br>3. <b>ie 變 y + ing</b>：<i>lying, tying, dying</i> 必須轉化為 y 加 -ing。<br>4. <b>首音節重音不雙寫</b>：<i>listening</i> 的重音在前面，因此直接加 -ing！" },
         'e': { title: "Vocabulary Context", note: "<b>校園生活生字意境：</b><br>1. <b>fond of</b>：非常喜愛。<br>2. <b>puzzled</b>：困惑、不解的。<br>3. <b>afterwards</b>：在那之後 / 隨後。<br>4. <b>helmet</b>：防護頭盔（騎單車或體育課安全防護用）。<br>5. <b>gymnastics</b>：體操運動。<br>6. <b>pavement</b>：人行道。<br>7. <b>traffic light</b>：紅綠燈。<br>8. <b>policeman</b>：警員。" }
