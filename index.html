@@ -17,18 +17,16 @@
     }
     
     /* -----------------------------------------------------------
-       PRINT-SPECIFIC STYLES (Strict A4 5-Page Layout - Large Child-Friendly Font)
+       PRINT-SPECIFIC STYLES (16pt Kids Font & Strict 5-Page Layout)
        ----------------------------------------------------------- */
     @media print {
       @page {
         size: A4;
-        margin: 1.0cm 0.8cm 1.0cm 0.8cm !important; /* Optimizing printable margins for bigger text */
+        margin: 0.8cm 0.6cm 0.8cm 0.6cm !important; /* Optimizing margins for 16pt font space */
       }
       html, body {
         background-color: white !important;
         color: black !important;
-        font-size: 12.5pt !important; /* Generous, clear, children-friendly base font size */
-        line-height: 1.35 !important;
         margin: 0 !important;
         padding: 0 !important;
         height: auto !important;
@@ -58,11 +56,14 @@
       }
 
       /* Control each page block as a strict unit to prevent overflow leaking */
-      #print-page-1, #print-page-2, #print-page-3, #print-page-4, #print-page-5 {
+      #print-page-1, #print-page-2, #print-page-3, #print-page-4 {
         box-sizing: border-box !important;
         position: relative !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        /* Force strictly 16pt for kids reading */
+        font-size: 16pt !important;
+        line-height: 1.45 !important;
       }
       
       /* Force strict page cuts after pages 1, 2, 3 and 4 */
@@ -71,22 +72,32 @@
         break-after: page !important;
       }
       
+      /* Page 5 (Answer Key) style: keep it small to fit single page */
       #print-page-5 {
         page-break-after: avoid !important;
         break-after: avoid !important;
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+        box-sizing: border-box !important;
+      }
+      #print-page-5 h2 {
+        font-size: 14pt !important;
+      }
+      #print-page-5 h4 {
+        font-size: 11pt !important;
       }
       
       /* Elegant top spacing on newly broken pages for clean print header margins */
       #print-page-2, #print-page-3, #print-page-4, #print-page-5 {
-        padding-top: 0.4cm !important; 
+        padding-top: 0.5cm !important; 
       }
       
-      /* Tighten up spacing to eliminate redundant accumulative heights */
+      /* Tighten up spacing to eliminate redundant accumulative heights in 16pt */
       section {
-        margin-bottom: 0.25cm !important;
+        margin-bottom: 0.3cm !important;
       }
       p {
-        margin-bottom: 0.1cm !important;
+        margin-bottom: 0.15cm !important;
       }
       .mb-10, .mb-8, .mb-6, .mb-4, .mb-2 {
         margin-bottom: 0.1cm !important;
@@ -95,41 +106,36 @@
         margin-top: 0.1cm !important;
       }
       .py-6, .py-8, .py-12 {
-        padding-top: 0.1cm !important;
-        padding-bottom: 0.1cm !important;
+        padding-top: 0.05cm !important;
+        padding-bottom: 0.05cm !important;
       }
       .ml-8 {
-        margin-left: 1.2rem !important; /* Slightly shift leftward for print horizontal economy */
+        margin-left: 1.0rem !important; /* Slightly shift leftward for print horizontal economy */
       }
       
       /* Adjust handwriting container (Part C) for print */
       .border-2.border-dashed {
-        padding: 0.3cm !important;
-        margin-top: 0.1cm !important;
+        padding: 0.4cm !important;
+        margin-top: 0.15cm !important;
         border-width: 1px !important;
       }
 
-      /* Strict typography rule for kids reading */
-      .leading-loose, .leading-relaxed {
-        line-height: 1.30 !important;
-      }
-      
-      /* Children-friendly input sizes in print mode */
+      /* Clean Answers Lines - No text printed inside inputs */
       .input-blank {
-        border-bottom: 1.5px black dashed !important;
+        border-bottom: 2px black dashed !important;
         border-top: none !important;
         border-left: none !important;
         border-right: none !important;
         border-radius: 0 !important;
         background: transparent !important;
-        width: 125px !important; /* Slightly wider to accommodate bigger letters */
+        width: 140px !important; /* Wider lines for kids writing */
         display: inline-block !important;
         text-align: center;
-        font-size: 13pt !important;
+        height: 1.1em !important;
       }
       .input-blank-large {
-        width: 185px !important; /* Slightly wider to accommodate bigger letters */
-        border-bottom: 1.5px black dashed !important;
+        width: 200px !important; /* Wider lines for kids writing */
+        border-bottom: 2px black dashed !important;
         border-top: none !important;
         border-left: none !important;
         border-right: none !important;
@@ -137,25 +143,26 @@
         background: transparent !important;
         display: inline-block !important;
         text-align: center;
-        font-size: 13pt !important;
+        height: 1.1em !important;
       }
 
-      /* COMPACTING PRINT FOR PAGE 5 (Answers key for teachers only) */
-      #print-page-5 {
-        font-size: 10pt !important; /* Keep compact for teachers to prevent any spill-over */
+      /* Hide any placeholder when printing */
+      input::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
       }
-      #print-page-5 h2 {
-        font-size: 14pt !important;
+
+      /* Control printed values (Blank worksheet vs Answer worksheet) */
+      body.print-answers-disabled input {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
       }
-      #print-page-5 h4 {
-        font-size: 11pt !important;
-      }
-      #print-page-5 .grid {
-        gap: 0.4rem !important;
-      }
-      #print-page-5 .space-y-4 > * {
-        margin-top: 0.2rem !important;
-        margin-bottom: 0.2rem !important;
+      body.print-answers-enabled input {
+        color: #e11d48 !important; /* Rose-600 */
+        -webkit-text-fill-color: #e11d48 !important;
+        font-weight: bold !important;
+        font-family: 'Short Stack', cursive, sans-serif !important;
       }
     }
     
@@ -191,7 +198,7 @@
         <div>
           <h1 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
             FS1 English Assessment Generator 
-            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">小二英文</span>
+            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">小二英文 (16pt 護眼版)</span>
           </h1>
           <p class="text-xs text-slate-500">香港小學二級 (FS1) 第二次總結性評估溫習工作紙</p>
         </div>
@@ -295,11 +302,11 @@
         <section class="mb-6">
           <div class="flex justify-between items-start mb-3">
             <div>
-              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
-                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">A</span>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">A</span>
                 Part A: Verb "to be" & Verb "to have"
               </h3>
-              <p class="text-xs text-slate-500 ml-8">Fill in the blanks with correct forms (8 marks, 2 marks each).</p>
+              <p class="text-sm text-slate-500 ml-8">Fill in the blanks with correct forms (8 marks, 2 marks each).</p>
             </div>
             <div class="text-right">
               <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">8 Marks</span>
@@ -320,7 +327,7 @@
           </div>
 
           <div class="ml-8 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
-            <p class="leading-relaxed text-sm md:text-base text-slate-800" id="part-a-text">
+            <p class="leading-relaxed text-slate-800 text-base md:text-lg" id="part-a-text">
               <!-- Dynamic Injection -->
             </p>
           </div>
@@ -330,11 +337,11 @@
         <section class="mb-2">
           <div class="flex justify-between items-start mb-3">
             <div>
-              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
-                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">B</span>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">B</span>
                 Part B: Subject, Object Pronouns & Possessive Adjectives
               </h3>
-              <p class="text-xs text-slate-500 ml-8">Fill in the blanks with correct pronouns or possessive adjectives (10 marks, 2 marks each).</p>
+              <p class="text-sm text-slate-500 ml-8">Fill in the blanks with correct pronouns or possessive adjectives (10 marks, 2 marks each).</p>
             </div>
             <div class="text-right">
               <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
@@ -342,7 +349,7 @@
           </div>
 
           <div class="ml-8 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
-            <p class="leading-relaxed text-sm md:text-base text-slate-800" id="part-b-text">
+            <p class="leading-relaxed text-slate-800 text-base md:text-lg" id="part-b-text">
               <!-- Dynamic Injection -->
             </p>
           </div>
@@ -356,11 +363,11 @@
         <section class="mb-2">
           <div class="flex justify-between items-start mb-3">
             <div>
-              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
-                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">C</span>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">C</span>
                 Part C: Present Simple Tense
               </h3>
-              <p class="text-xs text-slate-500 ml-8" id="part-c-instruction">Read the letter. Fill in the blanks with correct verb forms (10 marks, 2 marks each).</p>
+              <p class="text-sm text-slate-500 ml-8" id="part-c-instruction">Read the letter. Fill in the blanks with correct verb forms (10 marks, 2 marks each).</p>
             </div>
             <div class="text-right">
               <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
@@ -371,7 +378,7 @@
             <div class="text-right text-xs text-slate-500">Date: <span id="current-date">30th May 2026</span></div>
             <div class="text-base font-bold mb-3" id="part-c-salutation">Dear Shirley,</div>
             
-            <p class="leading-relaxed text-sm md:text-base text-slate-800 whitespace-pre-line" id="part-c-text">
+            <p class="leading-relaxed text-slate-800 text-base md:text-lg whitespace-pre-line" id="part-c-text">
               <!-- Dynamic Injection -->
             </p>
 
@@ -390,11 +397,11 @@
         <section class="mb-2">
           <div class="flex justify-between items-start mb-3">
             <div>
-              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
-                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">D</span>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">D</span>
                 Part D: Present Continuous Tense
               </h3>
-              <p class="text-xs text-slate-500 ml-8" id="part-d-instruction">Emily and Ada are talking now. Fill in the blanks with the correct form of verbs in brackets (10 marks, 2 marks each).</p>
+              <p class="text-sm text-slate-500 ml-8" id="part-d-instruction">Emily and Ada are talking now. Fill in the blanks with the correct form of verbs in brackets (10 marks, 2 marks each).</p>
             </div>
             <div class="text-right">
               <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
@@ -414,11 +421,11 @@
         <section class="mb-2">
           <div class="flex justify-between items-start mb-3">
             <div>
-              <h3 class="text-base font-extrabold text-slate-950 flex items-center gap-2">
-                <span class="bg-indigo-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs">E</span>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">E</span>
                 Part E: Vocabulary (School Life)
               </h3>
-              <p class="text-xs text-slate-500 ml-8">Choose the correct words from the box below to complete the story (12 marks, 2 marks each).</p>
+              <p class="text-sm text-slate-500 ml-8">Choose the correct words from the box below to complete the story (12 marks, 2 marks each).</p>
             </div>
             <div class="text-right">
               <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">12 Marks</span>
@@ -433,7 +440,7 @@
           </div>
 
           <div class="ml-8 bg-white border border-slate-100 rounded-xl p-5 shadow-sm">
-            <p class="leading-relaxed text-sm md:text-base text-slate-800 whitespace-pre-line" id="part-e-text">
+            <p class="leading-relaxed text-slate-800 text-base md:text-lg whitespace-pre-line" id="part-e-text">
               <!-- Dynamic Injection -->
             </p>
           </div>
@@ -453,10 +460,10 @@
       <!-- ==========================================
            PAGE 5: REFERENCE ANSWER SHEET (TEACHER KEY)
            ========================================== -->
-      <div id="print-page-5" class="hidden print:block">
-        <div class="border-b-4 border-double border-slate-800 pb-3 mb-6 text-center">
+      <div id="print-page-5" class="hidden print:block pt-4">
+        <div class="border-b-4 border-double border-slate-800 pb-3 mb-4 text-center">
           <div class="text-xs font-bold tracking-wider text-slate-600 uppercase">HKCCCU Logos Academy</div>
-          <h2 class="text-xl font-black text-slate-900 mt-1 tracking-tight">Second Summative Assessment - Revision Paper</h2>
+          <h2 class="text-lg font-black text-slate-900 mt-1 tracking-tight">Second Summative Assessment - Revision Paper</h2>
           <div class="text-sm font-bold text-rose-600 mt-1 uppercase tracking-wide">Teacher's Reference Answer Key (教師參考答案頁)</div>
         </div>
 
@@ -537,7 +544,7 @@
           </div>
         </div>
 
-        <div class="hidden print:block text-center text-[10px] text-slate-400 mt-12 pt-2 border-t border-slate-100">
+        <div class="hidden print:block text-center text-[10px] text-slate-400 mt-6 pt-2 border-t border-slate-100">
           2025-26 English FS1 Usage Answer Key &copy; HKCCCU Logos Academy
         </div>
       </div>
@@ -853,7 +860,8 @@
       const dataA = EXAM_DATABASE.partA[currentIndices.a];
       let htmlA = dataA.text;
       for (let i = 0; i < 4; i++) {
-        htmlA = htmlA.replace(`[A-${i+1}]`, `<input data-part="a" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) ">`);
+        // Keeps placeholder clean of any target text to ensure writing comfort on printouts
+        htmlA = htmlA.replace(`[A-${i+1}]`, `<input data-part="a" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
         // Sync static Key (Page 5)
         document.getElementById(`ans-a-${i+1}`).innerText = dataA.answers[i];
       }
@@ -863,7 +871,7 @@
       const dataB = EXAM_DATABASE.partB[currentIndices.b];
       let htmlB = dataB.text;
       for (let i = 0; i < 5; i++) {
-        htmlB = htmlB.replace(`[B-${i+1}]`, `<input data-part="b" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) ">`);
+        htmlB = htmlB.replace(`[B-${i+1}]`, `<input data-part="b" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
         // Sync static Key (Page 5)
         document.getElementById(`ans-b-${i+1}`).innerText = dataB.answers[i];
       }
@@ -879,7 +887,8 @@
       const cHints = ["go", "like", "have", "sing", "not have", "wake", "clean", "have", "jump", "not like", "visit", "play", "eat", "like", "not write", "stay", "go", "have", "bake", "not watch", "walk", "run", "have", "sing", "not like"];
       const baseVerbs = cHints.slice(currentIndices.c * 5, (currentIndices.c + 1) * 5);
       for (let i = 0; i < 5; i++) {
-        htmlC = htmlC.replace(`[C-${i+1}]`, `<input data-part="c" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) (${baseVerbs[i]}) ">`);
+        // Replaced and appended hints outside the blank space for clean print view
+        htmlC = htmlC.replace(`[C-${i+1}]`, `<input data-part="c" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" _________________ ">`);
         // Sync static Key (Page 5)
         document.getElementById(`ans-c-${i+1}`).innerText = dataC.answers[i];
       }
@@ -888,7 +897,7 @@
 
       // Part D
       const dataD = EXAM_DATABASE.partD[currentIndices.d];
-      document.getElementById('part-d-instruction').innerText = `${dataD.scenario} Fill in the blanks with the correct Present Continuous forms.`;
+      document.getElementById('part-d-instruction').innerText = `${dataD.scenario} Fill in the blanks with the correct form of verbs in brackets.`;
       
       const dContainer = document.getElementById('part-d-dialogue');
       dContainer.innerHTML = '';
@@ -898,16 +907,16 @@
 
       dataD.dialogue.forEach((line, idx) => {
         const row = document.createElement('div');
-        row.className = "flex gap-2 text-base md:text-lg leading-relaxed";
+        row.className = "flex gap-2 text-base md:text-lg leading-relaxed mb-1";
         
         let processedLineText = line.text;
         for (let i = 0; i < 5; i++) {
-          processedLineText = processedLineText.replace(`[D-${i+1}]`, `<input data-part="d" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) (${baseDVerbs[i]}) ">`);
+          processedLineText = processedLineText.replace(`[D-${i+1}]`, `<input data-part="d" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" _________________ ">`);
           // Sync static Key (Page 5)
           document.getElementById(`ans-d-${i+1}`).innerText = dataD.answers[i];
         }
 
-        row.innerHTML = `<span class="font-black text-slate-900 min-w-[70px]">${line.speaker}:</span> <span class="text-slate-800 flex-1">${processedLineText}</span>`;
+        row.innerHTML = `<span class="font-black text-slate-900 min-w-[75px]">${line.speaker}:</span> <span class="text-slate-800 flex-1">${processedLineText}</span>`;
         dContainer.appendChild(row);
       });
 
@@ -918,14 +927,14 @@
       vocabBankElement.innerHTML = '';
       shuffledBank.forEach(word => {
         const item = document.createElement('div');
-        item.className = "bg-white border border-indigo-100 py-1.5 px-3 rounded-xl text-indigo-900 font-bold font-handwriting text-sm md:text-base shadow-sm";
+        item.className = "bg-white border border-indigo-100 py-1 px-3 rounded-xl text-indigo-900 font-bold font-handwriting text-sm md:text-base shadow-sm";
         item.innerText = word;
         vocabBankElement.appendChild(item);
       });
 
       let htmlE = dataE.text;
       for (let i = 0; i < 6; i++) {
-        htmlE = htmlE.replace(`[E-${i+1}]`, `<input data-part="e" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" (${i+1}) ">`);
+        htmlE = htmlE.replace(`[E-${i+1}]`, `<input data-part="e" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
         // Sync static Key (Page 5)
         document.getElementById(`ans-e-${i+1}`).innerText = dataE.answers[i];
       }
@@ -1082,7 +1091,7 @@
 
       const feedbackRules = {
         'a': { title: "Verb 'to be' & 'to have'", note: "<b>單複數配合：</b><br>1. 單數主語（It / My brother / The kitchen）配合 <b>is / has</b>。<br>2. 複數主語（We / My parents / My sister and I）配合 <b>are / have</b>。<br>3. 'Have got' / 'Has got' 用於表達「擁有」。其否定句為 <b>haven't got / hasn't got</b>。" },
-        'b': { title: "Pronouns & Possessives", note: "<b>代詞三格：</b><br>1. <b>主格</b>（He, She, They, We）在動詞前作主語。<br>2. <b>賓格</b>（him, her, us, them, it）在動詞或介詞後（介介：ran after <b>it</b>, take <b>us</b>, returned <b>it</b>）。<br>3. <b>所有格形容詞</b>（His, Her, Their, Our, Its）後面必須緊跟名詞（例如：<b>Its</b> name, <b>our</b> weekend, <b>Her</b> muffins）。" },
+        'b': { title: "Pronouns & Possessives", note: "<b>代詞三格：</b><br>1. <b>主格</b>（He, She, They, We）在動詞前作主語。<br>2. <b>賓格</b>（him, her, us, them, it）在動詞或介詞後（ran after <b>it</b>, take <b>us</b>, returned <b>it</b>）。<br>3. <b>所有格形容詞</b>（His, Her, Their, Our, Its）後面必須緊跟名詞（例如：<b>Its</b> name, <b>our</b> weekend, <b>Her</b> muffins）。" },
         'c': { title: "Present Simple", note: "<b>日常規律與事實：</b><br>1. 當主語是單數第三人稱（My father, My sister, Toby）時，動詞必須加上 <b>-s / -es / -ies</b>（例如：likes, sings, cleans, goes, bakes）。<br>2. <b>複數主語</b>或第一人稱（I, We, My family and I）時，動詞保留原形。<br>3. 否定式：單數用 <b>doesn't + 動詞原形</b>（例如：doesn't have），複數用 <b>don't</b>。" },
         'd': { title: "Present Continuous (-ing) 規則", note: "<b>現在進行時規則重溫：</b><br>1. <b>雙寫字尾 + ing</b>（短元音+單輔音）：<i>climbing</i> 不雙寫；但 <i>running, sitting, cutting, winning</i> 需要雙寫尾字母。<br>2. <b>去 e 加 ing</b>：<i>writing, baking</i> 等去字尾 e。<br>3. <b>ie 變 y + ing</b>：<i>lying, tying, dying</i> 必須轉化為 y 加 -ing。<br>4. <b>首音節重音不雙寫</b>：<i>listening</i> 的重音在前面，因此直接加 -ing！" },
         'e': { title: "Vocabulary Context", note: "<b>校園生活生字意境：</b><br>1. <b>fond of</b>：非常喜愛。<br>2. <b>puzzled</b>：困惑、不解的。<br>3. <b>afterwards</b>：在那之後 / 隨後。<br>4. <b>helmet</b>：防護頭盔（騎單車或體育課安全防護用）。<br>5. <b>gymnastics</b>：體操運動。<br>6. <b>pavement</b>：人行道。<br>7. <b>traffic light</b>：紅綠燈。<br>8. <b>policeman</b>：警員。" }
@@ -1117,7 +1126,7 @@
     // Apply strict width classes for dynamic placeholders
     function applyInputsState() {
       document.querySelectorAll('#exam-sheet input[data-part]').forEach(input => {
-        const isLarge = input.placeholder.includes('climb') || input.placeholder.includes('run') || input.placeholder.includes('write') || input.placeholder.includes('draw') || input.placeholder.includes('sing') || input.placeholder.includes('have') || input.placeholder.includes('play') || input.placeholder.includes('not');
+        const isLarge = input.placeholder.includes('climb') || input.placeholder.includes('run') || input.placeholder.includes('write') || input.placeholder.includes('draw') || input.placeholder.includes('sing') || input.placeholder.includes('have') || input.placeholder.includes('play') || input.placeholder.includes('not') || input.placeholder.includes('____');
         input.className = `${isLarge ? 'input-blank-large' : 'input-blank'} inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting`;
       });
     }
@@ -1127,6 +1136,15 @@
       const currentMode = isInteractiveMode;
       if (currentMode) {
         switchMode('print');
+      }
+      
+      // Toggle CSS flags depending on whether we want to print completed answers or blank sheet
+      if (isAnswersVisible) {
+        document.body.classList.add('print-answers-enabled');
+        document.body.classList.remove('print-answers-disabled');
+      } else {
+        document.body.classList.add('print-answers-disabled');
+        document.body.classList.remove('print-answers-enabled');
       }
       
       setTimeout(() => {
