@@ -1,1567 +1,1164 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Printer, 
-  BookOpen, 
-  RefreshCw, 
-  Edit3, 
-  CheckCircle, 
-  Eye, 
-  EyeOff, 
-  Award, 
-  Sparkles, 
-  Save, 
-  Undo, 
-  AlertCircle,
-  HelpCircle,
-  Type
-} from 'lucide-react';
-
-const FULL_VOCAB_POOL = [
-  "happily", "kindly", "slowly", "coin", "necklace", "museum", 
-  "sculpture", "competition", "goggles", "medal", "helmet", "towel", 
-  "uniform", "celebration", "puddle", "lantern", "shelter", "fade", 
-  "stuck", "unusual", "pebble", "belong to", "stripes", "rough"
-];
-
-const EXAM_SETS = {
-  SetA: {
-    title: "FS2 English Usage Revision Paper (Set A)",
-    partA: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in present simple or present continuous tense.",
-      questions: [
-        { id: "a1", text: "Look! The little puppy __________ (chase) its own tail in the garden.", ans: "is chasing", hint: "Look! indicates an action happening right now." },
-        { id: "a2", text: "My sister usually __________ (read) a storybook before she goes to sleep.", ans: "reads", hint: "'usually' is a frequency adverb used with Present Simple." },
-        { id: "a3", text: "Listen! Miss Wong __________ (sing) a beautiful song in the music room.", ans: "is singing", hint: "Listen! indicates an ongoing action." },
-        { id: "a4", text: "Water __________ (boil) at 100 degrees Celsius.", ans: "boils", hint: "Scientific facts always use Present Simple." },
-        { id: "a5", text: "We __________ (not go) to school on Saturdays and Sundays.", ans: "do not go", hint: "Routine negative sentence in Present Simple (We plural)." },
-        { id: "a6", text: "Be quiet! The baby __________ (sleep) in the bedroom.", ans: "is sleeping", hint: "Be quiet! implies an action happening at this moment." },
-        { id: "a7", text: "__________ your father __________ (drive) to work every morning?", ans: "Does, drive", hint: "Question about habit/routine with singular subject 'your father'." },
-        { id: "a8", text: "At the moment, my parents __________ (watch) a documentary on television.", ans: "are watching", hint: "'At the moment' indicates Present Continuous." }
-      ]
-    },
-    partB: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in past simple tense.",
-      questions: [
-        { id: "b1", text: "Yesterday, we __________ (visit) the science museum and learned about space.", ans: "visited", type: "regular" },
-        { id: "b2", text: "Tiffany __________ (buy) a beautiful dress for the upcoming school concert last Friday.", ans: "bought", type: "irregular" },
-        { id: "b3", text: "The wind __________ (blow) strongly last night and knocked down some branches.", ans: "blew", type: "irregular" },
-        { id: "b4", text: "We __________ (not have) enough time to finish our art project yesterday afternoon.", ans: "did not have", type: "negative" },
-        { id: "b5", text: "Thomas __________ (lose) his favorite pencil case on the school bus this morning.", ans: "lost", type: "irregular" },
-        { id: "b6", text: "The children __________ (stop) running when the bell rang.", ans: "stopped", type: "regular" }
-      ]
-    },
-    partC: {
-      instructions: "Fill in the blanks with the most suitable words given in the box. Each word can be used ONCE only.",
-      passage: "Last Sunday, my family went to the park. Suddenly, it started to rain heavily. We quickly ran and found (1)__________ under a large tree. I accidentally stepped into a muddy (2)__________ and my shoes got soaking wet. After the rain stopped, we saw an amazing ice (3)__________ on display for the winter (4)__________. Some children were playing (5)__________ around it. On our way home, we saw a little cat that got (6)__________ in a wooden fence, so we helped it out.",
-      answers: {
-        c1: "shelter",
-        c2: "puddle",
-        c3: "sculpture",
-        c4: "celebration",
-        c5: "happily",
-        c6: "stuck"
-      }
-    },
-    partD: {
-      instructions: "Fill in the blanks with the correct prepositions given in the box. Each word can be used ONCE only. Use capital letters when necessary.",
-      words: ["across", "through", "above", "along", "under", "between"],
-      questions: [
-        { id: "d1", text: "The library is located __________ the school hall and the computer room.", ans: "between" },
-        { id: "d2", text: "The brave old man walked __________ the busy street to help the lost boy.", ans: "across" },
-        { id: "d3", text: "The train went __________ a dark tunnel before reaching the sunny valley.", ans: "through" },
-        { id: "d4", text: "We sat __________ a big beach umbrella to protect ourselves from the sun.", ans: "under" },
-        { id: "d5", text: "Beautiful birds were flying high __________ the white clouds.", ans: "above" },
-        { id: "d6", text: "We strolled __________ the riverbank and enjoyed the cool evening breeze.", ans: "along" }
-      ]
-    },
-    partE: {
-      instructions: "Complete the passage with the correct form of comparative and superlative adjectives.",
-      passage: "My family decided to buy a new pet. We went to the biggest pet shop in town. First, we looked at the rabbits. They were (1)__________ (cute) than the hamsters. Then, we saw a golden retriever puppy. It was the (2)__________ (friendly) animal in the whole shop. It was also (3)__________ (heavy) than the kittens we saw earlier. My mother thought a parrot would be (4)__________ (good) than a dog because our flat is quite small. In the end, we chose the puppy because we thought it would bring the (5)__________ (great) happiness to our home.",
-      answers: {
-        e1: "cuter",
-        e2: "friendliest",
-        e3: "heavier",
-        e4: "better",
-        e5: "greatest"
-      }
-    },
-    partF: {
-      instructions: "Correct the underlined words. Keep the original meaning of the text.",
-      questions: [
-        { id: "f1", text: "My cousin loves eating apples, oranges or bananas.", underlined: "or", ans: "and" },
-        { id: "f2", text: "There are much books on the teacher's desk.", underlined: "much", ans: "many" },
-        { id: "f3", text: "She sing beautifully in the choir every Sunday morning.", underlined: "sing", ans: "sings" },
-        { id: "f4", text: "I didn't saw the shooting star last night.", underlined: "saw", ans: "see" },
-        { id: "f5", text: "The blue car is more fast than the red one.", underlined: "more fast", ans: "faster" },
-        { id: "f6", text: "We must listen careful to our teacher in class.", underlined: "careful", ans: "carefully" },
-        { id: "f7", text: "He goes to school by foot because he lives nearby.", underlined: "by", ans: "on" },
-        { id: "f8", text: "They is going to visit Ocean Park tomorrow.", underlined: "is", ans: "are" }
-      ]
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FS1 English Summative Assessment 2 Revision Paper Generator</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts for Kids-friendly & Clean Look -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@300;400;600;700;800&family=Short+Stack&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Nunito', 'Fredoka', system-ui, -apple-system, sans-serif;
     }
-  },
-  SetB: {
-    title: "FS2 English Usage Revision Paper (Set B)",
-    partA: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in present simple or present continuous tense.",
-      questions: [
-        { id: "a1", text: "Hurry up! The school bus __________ (wait) for us outside.", ans: "is waiting", hint: "Hurry up! means the action is happening now." },
-        { id: "a2", text: "Our English teacher always __________ (speak) clearly in lessons.", ans: "speaks", hint: "'always' represents a regular habit." },
-        { id: "a3", text: "My father __________ (wash) his car every Sunday afternoon.", ans: "washes", hint: "Routine/habitual action in Present Simple (singular subject)." },
-        { id: "a4", text: "Listen! The birds __________ (chirp) happily in the trees.", ans: "are chirping", hint: "Listen! alerts us to something happening right now." },
-        { id: "a5", text: "They __________ (not watch) TV right now; they are doing homework.", ans: "are not watching", hint: "'right now' calls for Present Continuous." },
-        { id: "a6", text: "The earth __________ (go) around the sun.", ans: "goes", hint: "Scientific fact, use Present Simple." },
-        { id: "a7", text: "__________ you __________ (prepare) for your English test tonight?", ans: "Are, preparing", hint: "Action happening around the present time / tonight." },
-        { id: "a8", text: "Uncle Sam __________ (not drink) coffee; he prefers tea.", ans: "does not drink", hint: "A general preference or habit." }
-      ]
-    },
-    partB: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in past simple tense.",
-      questions: [
-        { id: "b1", text: "Last night, I __________ (do) all my homework before dinner.", ans: "did", type: "irregular" },
-        { id: "b2", text: "Sally __________ (drop) her ice cream cone on the floor.", ans: "dropped", type: "regular" },
-        { id: "b3", text: "They __________ (go) to Japan for their winter holiday last year.", ans: "went", type: "irregular" },
-        { id: "b4", text: "He __________ (not call) me last weekend as he was busy.", ans: "did not call", type: "negative" },
-        { id: "b5", text: "We __________ (see) a colorful rainbow after the storm yesterday.", ans: "saw", type: "irregular" },
-        { id: "b6", text: "The train __________ (arrive) at the station five minutes ago.", ans: "arrived", type: "regular" }
-      ]
-    },
-    partC: {
-      instructions: "Fill in the blanks with the most suitable words given in the box. Each word can be used ONCE only.",
-      passage: "To prepare for the bicycle (1)__________, Leo put on his safety (2)__________ to protect his head. He rode his bike very fast, but suddenly got (3)__________ in some thick mud. He pulled his bike out (4)__________ and continued the race. In the end, he won a gold (5)__________! During the victory (6)__________, all his friends cheered for him.",
-      answers: {
-        c1: "competition",
-        c2: "helmet",
-        c3: "stuck",
-        c4: "slowly",
-        c5: "medal",
-        c6: "celebration"
-      }
-    },
-    partD: {
-      instructions: "Fill in the blanks with the correct prepositions given in the box. Each word can be used ONCE only. Use capital letters when necessary.",
-      words: ["across", "through", "above", "along", "under", "between"],
-      questions: [
-        { id: "d1", text: "The cat squeezed __________ the narrow gap in the fence to chase a mouse.", ans: "through" },
-        { id: "d2", text: "There is a wooden bridge __________ the small stream in the park.", ans: "across" },
-        { id: "d3", text: "A bright chandelier was hanging directly __________ the dining table.", ans: "above" },
-        { id: "d4", text: "The hikers walked __________ the winding forest path for two hours.", ans: "along" },
-        { id: "d5", text: "Our dog likes to sleep __________ the kitchen table when it is hot.", ans: "under" },
-        { id: "d6", text: "The playground is located __________ the primary block and the secondary block.", ans: "between" }
-      ]
-    },
-    partE: {
-      instructions: "Complete the passage with the correct form of comparative and superlative adjectives.",
-      passage: "Maths is my favorite subject, but English is (1)__________ (difficult) than Maths for me. Yesterday, I took the (2)__________ (important) test of the term. I was so nervous! My classmate, Leo, is (3)__________ (smart) than anyone else in our class, and he finished early. However, my teacher said that being careful is (4)__________ (good) than being fast. I hope I can get the (5)__________ (high) mark this time to make my parents proud.",
-      answers: {
-        e1: "more difficult",
-        e2: "most important",
-        e3: "smarter",
-        e4: "better",
-        e5: "highest"
-      }
-    },
-    partF: {
-      instructions: "Correct the underlined words. Keep the original meaning of the text.",
-      questions: [
-        { id: "f1", text: "My grandmother is a kind women who always bakes cookies for us.", underlined: "women", ans: "woman" },
-        { id: "f2", text: "How many water do we need to make this soup?", underlined: "many", ans: "much" },
-        { id: "f3", text: "He do his homework every evening after dinner.", underlined: "do", ans: "does" },
-        { id: "f4", text: "Last year, we builded a beautiful treehouse in the backyard.", underlined: "builded", ans: "built" },
-        { id: "f5", text: "The Pacific Ocean is the larger ocean in the world.", underlined: "larger", ans: "largest" },
-        { id: "f6", text: "She spoke very quiet so the baby wouldn't wake up.", underlined: "quiet", ans: "quietly" },
-        { id: "f7", text: "We arrived on the airport on Sunday night.", underlined: "on", ans: "at" },
-        { id: "f8", text: "You must not to run in the corridors.", underlined: "not to", ans: "not" }
-      ]
+    .font-handwriting {
+      font-family: 'Short Stack', cursive, sans-serif;
     }
-  },
-  SetC: {
-    title: "FS2 English Usage Revision Paper (Set C)",
-    partA: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in present simple or present continuous tense.",
-      questions: [
-        { id: "a1", text: "The sun always __________ (rise) in the east and sets in the west.", ans: "rises", hint: "This is a universal truth / scientific fact." },
-        { id: "a2", text: "Don't make noise! Father __________ (work) in his study room.", ans: "is working", hint: "'Don't make noise!' means the action is currently happening." },
-        { id: "a3", text: "My cousins usually __________ (play) badminton in the park on Sundays.", ans: "play", hint: "'usually' points to habitual action." },
-        { id: "a4", text: "Look at the sky! Dark clouds __________ (gather). It's going to rain.", ans: "are gathering", hint: "'Look at!' draws attention to an immediate ongoing event." },
-        { id: "a5", text: "Ms. Chan __________ (teach) us English this year.", ans: "teaches", hint: "A regular state or arrangement for this school year." },
-        { id: "a6", text: "We __________ (not like) cold weather very much.", ans: "do not like", hint: "State verb (like) usually takes Present Simple." },
-        { id: "a7", text: "__________ she __________ (do) her ballet practice at the moment?", ans: "Is, doing", hint: "'at the moment' always triggers Present Continuous." },
-        { id: "a8", text: "Every morning, my mother __________ (make) a healthy breakfast for us.", ans: "makes", hint: "'Every morning' indicates routine." }
-      ]
-    },
-    partB: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in past simple tense.",
-      questions: [
-        { id: "b1", text: "Two hours ago, my little brother __________ (break) his favorite toy.", ans: "broke", type: "irregular" },
-        { id: "b2", text: "We __________ (enjoy) the school picnic very much last Wednesday.", ans: "enjoyed", type: "regular" },
-        { id: "b3", text: "The student __________ (write) an excellent essay during the exam.", ans: "wrote", type: "irregular" },
-        { id: "b4", text: "I __________ (not sleep) well last night because of the loud thunderstorm.", ans: "did not sleep", type: "negative" },
-        { id: "b5", text: "Uncle David __________ (give) me a lovely birthday present last week.", ans: "gave", type: "irregular" },
-        { id: "b6", text: "The rain __________ (stop) just before we stepped outside.", ans: "stopped", type: "regular" }
-      ]
-    },
-    partC: {
-      instructions: "Fill in the blanks with the most suitable words given in the box. Each word can be used ONCE only.",
-      passage: "Yesterday, our class visited the history (1)__________. We saw many ancient things, including a shiny gold (2)__________ that people used as money long ago. The guide showed us an (3)__________ necklace made of rare green shells. My friend found a smooth (4)__________ on the floor and wondered if it used to (5)__________ an ancient king. Near the exit, we also saw a stone (6)__________ of a giant dinosaur.",
-      answers: {
-        c1: "museum",
-        c2: "coin",
-        c3: "unusual",
-        c4: "pebble",
-        c5: "belong to",
-        c6: "sculpture"
-      }
-    },
-    partD: {
-      instructions: "Fill in the blanks with the correct prepositions given in the box. Each word can be used ONCE only. Use capital letters when necessary.",
-      words: ["across", "through", "above", "along", "under", "between"],
-      questions: [
-        { id: "d1", text: "The moon shines brightly __________ our heads in the dark night.", ans: "above" },
-        { id: "d2", text: "My grandmother walked __________ the pathway to look at the roses.", ans: "along" },
-        { id: "d3", text: "Can you swim __________ this wide pool in under one minute?", ans: "across" },
-        { id: "d4", text: "The children crawled __________ the playground tube to reach the other side.", ans: "through" },
-        { id: "d5", text: "I found my lost toy car hidden __________ the sofa cushions.", ans: "between" },
-        { id: "d6", text: "They found a cool shaded spot __________ a giant oak tree for their picnic.", ans: "under" }
-      ]
-    },
-    partE: {
-      instructions: "Complete the passage with the correct form of comparative and superlative adjectives.",
-      passage: "Last summer was the (1)__________ (hot) summer I have ever experienced. My family decided to visit a water park. It was (2)__________ (exciting) than going to the public pool. My brother, who is (3)__________ (brave) than me, went down the tallest water slide. I preferred the lazy river because it was (4)__________ (relaxing) than the giant slides. Overall, it was the (5)__________ (good) day of our entire summer holiday.",
-      answers: {
-        e1: "hottest",
-        e2: "more exciting",
-        e3: "braver",
-        e4: "more relaxing",
-        e5: "best"
-      }
-    },
-    partF: {
-      instructions: "Correct the underlined words. Keep the original meaning of the text.",
-      questions: [
-        { id: "f1", text: "There are any cookies left in the cookie jar for you.", underlined: "any", ans: "some" },
-        { id: "f2", text: "My sister has two knifes to cut the birthday cake.", underlined: "knifes", ans: "knives" },
-        { id: "f3", text: "The baby is cry because he is hungry.", underlined: "cry", ans: "crying" },
-        { id: "f4", text: "We go to Disneyland yesterday with our cousins.", underlined: "go", ans: "went" },
-        { id: "f5", text: "This math question is the most easy one in the test.", underlined: "most easy", ans: "easiest" },
-        { id: "f6", text: "Please write neat so the teacher can read your work.", underlined: "neat", ans: "neatly" },
-        { id: "f7", text: "I am interested with learning how to play the violin.", underlined: "with", ans: "in" },
-        { id: "f8", text: "She loves both dancing or singing.", underlined: "or", ans: "and" }
-      ]
-    }
-  },
-  SetD: {
-    title: "FS2 English Usage Revision Paper (Set D)",
-    partA: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in present simple or present continuous tense.",
-      questions: [
-        { id: "a1", text: "Shh! The students __________ (write) their final English exam now.", ans: "are writing", hint: "'now' is a clear keyword for Present Continuous." },
-        { id: "a2", text: "The train always __________ (arrive) at platform three at exactly 8:00 AM.", ans: "arrives", hint: "'always' indicates a regular, scheduled timetable." },
-        { id: "a3", text: "My mother __________ (cook) spaghetti in the kitchen at the moment.", ans: "is cooking", hint: "'at the moment' points to Present Continuous." },
-        { id: "a4", text: "Koalas __________ (live) in Australia and eat eucalyptus leaves.", ans: "live", hint: "This is a factual statement using Present Simple (plural subject)." },
-        { id: "a5", text: "We __________ (not play) video games on weekdays.", ans: "do not play", hint: "A regular habit in negative Present Simple." },
-        { id: "a6", text: "Look! The hot air balloon __________ (rise) slowly into the sky.", ans: "is rising", hint: "'Look!' demands attention for an ongoing action." },
-        { id: "a7", text: "__________ you __________ (understand) the teacher's instructions?", ans: "Do, understand", hint: "'understand' is a state verb and typically uses Present Simple." },
-        { id: "a8", text: "Every Saturday, my brother __________ (go) to basketball practice.", ans: "goes", hint: "'Every Saturday' shows a routine." }
-      ]
-    },
-    partB: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in past simple tense.",
-      questions: [
-        { id: "b1", text: "Last night, I __________ (hear) a strange noise outside my window.", ans: "heard", type: "irregular" },
-        { id: "b2", text: "The teacher __________ (smile) and praised us for our hard work.", ans: "smiled", type: "regular" },
-        { id: "b3", text: "My parents __________ (take) us to the zoo last Saturday.", ans: "took", type: "irregular" },
-        { id: "b4", text: "They __________ (not buy) any souvenirs during their trip.", ans: "did not buy", type: "negative" },
-        { id: "b5", text: "She __________ (write) a lovely thank-you letter to her aunt yesterday.", ans: "wrote", type: "irregular" },
-        { id: "b6", text: "We __________ (run) all the way home because it was getting dark.", ans: "ran", type: "irregular" }
-      ]
-    },
-    partC: {
-      instructions: "Fill in the blanks with the most suitable words given in the box. Each word can be used ONCE only.",
-      passage: "During the Mid-Autumn Festival (1)__________, the park was filled with beautiful lights. My grandfather (2)__________ handed me a bright red (3)__________ that glowed in the dark. We walked (4)__________ around the lake, enjoying the cool breeze. Suddenly, the clouds covered the moon, causing its light to (5)__________ away. Luckily, we found a cozy (6)__________ to sit and eat mooncakes.",
-      answers: {
-        c1: "celebration",
-        c2: "kindly",
-        c3: "lantern",
-        c4: "slowly",
-        c5: "fade",
-        c6: "shelter"
-      }
-    },
-    partD: {
-      instructions: "Fill in the blanks with the correct prepositions given in the box. Each word can be used ONCE only. Use capital letters when necessary.",
-      words: ["across", "through", "above", "along", "under", "between"],
-      questions: [
-        { id: "d1", text: "The children ran __________ the green grass to catch the butterfly.", ans: "across" },
-        { id: "d2", text: "A beautiful bird built its nest __________ the branches of two tall trees.", ans: "between" },
-        { id: "d3", text: "We walked __________ the long path next to the river.", ans: "along" },
-        { id: "d4", text: "The subway train passed safely __________ the deep underwater tunnel.", ans: "through" },
-        { id: "d5", text: "A heavy rain cloud formed directly __________ our school building.", ans: "above" },
-        { id: "d6", text: "The tired traveler rested __________ the shade of a large palm tree.", ans: "under" }
-      ]
-    },
-    partE: {
-      instructions: "Complete the passage with the correct form of comparative and superlative adjectives.",
-      passage: "Reading books is my absolute favorite hobby. I think adventure novels are (1)__________ (exciting) than science books. Last week, I read the (2)__________ (good) story I have ever found. It was about a brave knight. The knight was (3)__________ (courageous) than all his friends. He climbed the (4)__________ (high) mountain to find a magic sword. The journey was (5)__________ (hard) than he expected.",
-      answers: {
-        e1: "more exciting",
-        e2: "best",
-        e3: "more courageous",
-        e4: "highest",
-        e5: "harder"
-      }
-    },
-    partF: {
-      instructions: "Correct the underlined words. Keep the original meaning of the text.",
-      questions: [
-        { id: "f1", text: "My brother is a honest boy who never tells lies.", underlined: "a", ans: "an" },
-        { id: "f2", text: "They went to the library for get some books.", underlined: "for", ans: "to" },
-        { id: "f3", text: "The sun shine brightly in the sky today.", underlined: "shine", ans: "shines" },
-        { id: "f4", text: "Yesterday, we swimmed in the deep swimming pool.", underlined: "swimmed", ans: "swam" },
-        { id: "f5", text: "This heavy box is the heavier of all the boxes.", underlined: "heavier", ans: "hearest" }, // fixed logical answer to match superlative: heaviest
-        { id: "f6", text: "You must speak polite to your grandparents.", underlined: "polite", ans: "politely" },
-        { id: "f7", text: "The children are interested of learning about dinosaurs.", underlined: "of", ans: "in" },
-        { id: "f8", text: "We can go to the park and stay at home instead.", underlined: "and", ans: "or" }
-      ]
-    }
-  },
-  SetE: {
-    title: "FS2 English Usage Revision Paper (Set E)",
-    partA: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in present simple or present continuous tense.",
-      questions: [
-        { id: "a1", text: "Look! The fireman __________ (climb) up the long ladder to save the cat.", ans: "is climbing", hint: "An action unfolding right before our eyes." },
-        { id: "a2", text: "Lions usually __________ (hunt) for food during the night.", ans: "hunt", hint: "General habits of animals require Present Simple (plural subject)." },
-        { id: "a3", text: "Listen! Someone __________ (knock) on our front door.", ans: "is knocking", hint: "Listen! flags an ongoing event." },
-        { id: "a4", text: "The moon __________ (shine) brightly when the sky is clear.", ans: "shines", hint: "A regular natural event in Present Simple." },
-        { id: "a5", text: "My sister __________ (not play) the piano on Sunday mornings.", ans: "does not play", hint: "Negative weekly routine with singular subject." },
-        { id: "a6", text: "Be quiet! The teacher __________ (explain) a difficult question.", ans: "is explaining", hint: "Be quiet! means it's happening right now." },
-        { id: "a7", text: "__________ your parents __________ (travel) to Japan every winter?", ans: "Do, travel", hint: "A repeating winter habit question." },
-        { id: "a8", text: "At the moment, we __________ (paint) a beautiful picture of a sunset.", ans: "are painting", hint: "'At the moment' always takes Present Continuous." }
-      ]
-    },
-    partB: {
-      instructions: "Fill in the blanks with the correct form of the verbs in the brackets in past simple tense.",
-      questions: [
-        { id: "b1", text: "Last summer, we __________ (catch) three tiny fish in the stream.", ans: "caught", type: "irregular" },
-        { id: "b2", text: "The little boy __________ (cry) when he scraped his knee on the ground.", ans: "cried", type: "regular" },
-        { id: "b3", text: "They __________ (leave) the party early because they were tired.", ans: "left", type: "irregular" },
-        { id: "b4", text: "He __________ (not eat) any breakfast because he woke up late.", ans: "did not eat", type: "negative" },
-        { id: "b5", text: "My uncle __________ (send) us a beautiful postcard from London.", ans: "sent", type: "irregular" },
-        { id: "b6", text: "The school bus __________ (stop) right in front of my house.", ans: "stopped", type: "regular" }
-      ]
-    },
-    partC: {
-      instructions: "Fill in the blanks with the most suitable words given in the box. Each word can be used ONCE only.",
-      passage: "During our trip to the rocky beach, my sister and I wore our swimming (1)__________ to protect our eyes. The sand felt very (2)__________ under our bare feet. I found a smooth, round (3)__________ and put it in my pocket. Suddenly, my sister found a beautiful silver (4)__________ half-buried in the sand. We ran (5)__________ back to our parents to show them our discoveries. My mother used a clean (6)__________ to dry our wet hands.",
-      answers: {
-        c1: "goggles",
-        c2: "rough",
-        c3: "pebble",
-        c4: "necklace",
-        c5: "happily",
-        c6: "towel"
-      }
-    },
-    partD: {
-      instructions: "Fill in the blanks with the correct prepositions given in the box. Each word can be used ONCE only. Use capital letters when necessary.",
-      words: ["across", "through", "above", "along", "under", "between"],
-      questions: [
-        { id: "d1", text: "The children ran __________ the field to reach the ice cream truck.", ans: "across" },
-        { id: "d2", text: "Our house is located __________ the bakery and the fruit shop.", ans: "between" },
-        { id: "d3", text: "The river flows gently __________ the base of the high mountains.", ans: "along" },
-        { id: "d4", text: "The bright sun rose high __________ the beautiful green hills.", ans: "above" },
-        { id: "d5", text: "A small mouse ran quickly __________ the sofa to hide from the cat.", ans: "under" },
-        { id: "d6", text: "The explorer walked __________ the thick jungle to find the lost city.", ans: "through" }
-      ]
-    },
-    partE: {
-      instructions: "Complete the passage with the correct form of comparative and superlative adjectives.",
-      passage: "Our school sports day was very exciting. My friend Tom is a (1)__________ (fast) runner than me. He won the 100-meter race easily. But our classmate, Sam, is the (2)__________ (quick) athlete in the whole school. Tom was (3)__________ (happy) than last year because he got a silver medal. My parents said that taking part is (4)__________ (important) than winning. I think sports day is the (5)__________ (good) day of the entire school term.",
-      answers: {
-        e1: "faster",
-        e2: "quickest",
-        e3: "happier",
-        e4: "more important",
-        e5: "best"
-      }
-    },
-    partF: {
-      instructions: "Correct the underlined words. Keep the original meaning of the text.",
-      questions: [
-        { id: "f1", text: "My friend is a kind person who always help others.", underlined: "help", ans: "helps" },
-        { id: "f2", text: "How many milk do you want in your black tea?", underlined: "many", ans: "much" },
-        { id: "f3", text: "She do her gymnastics practice every Tuesday.", underlined: "do", ans: "does" },
-        { id: "f4", text: "They buyed a huge birthday cake for the party yesterday.", underlined: "buyed", ans: "bought" },
-        { id: "f5", text: "Mount Everest is the taller mountain in the world.", underlined: "taller", ans: "tallest" },
-        { id: "f6", text: "We must walk quiet when we are inside the library.", underlined: "quiet", ans: "quietly" },
-        { id: "f7", text: "He goes to school by bus instead of with foot.", underlined: "with", ans: "on" },
-        { id: "f8", text: "You must not to touch the hot stove.", underlined: "not to", ans: "not" }
-      ]
-    }
-  }
-};
-
-export default function App() {
-  const [currentSetKey, setCurrentSetKey] = useState('SetA');
-  const [examData, setExamData] = useState(JSON.parse(JSON.stringify(EXAM_SETS.SetA)));
-  const [mode, setMode] = useState('teacher'); // 'teacher' or 'student'
-  const [showAnswers, setShowAnswers] = useState(false);
-  
-  // Font Size: 'standard' or 'large' (large is great for younger FS2 kids)
-  const [fontSize, setFontSize] = useState('large');
-
-  // Dynamic Word Box State for Part C (8 words: 6 answers + 2 random distractors)
-  const [partCWords, setPartCWords] = useState([]);
-
-  // Student inputs
-  const [studentAnswers, setStudentAnswers] = useState({});
-  const [studentScore, setStudentScore] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  // Edit State
-  const [isEditing, setIsEditing] = useState(false);
-  const [editableData, setEditableData] = useState(null);
-
-  // Helper helper to shuffle array
-  const shuffleArray = (arr) => {
-    const copy = [...arr];
-    for (let i = copy.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-  };
-
-  // Whenever the active set changes, generate the dynamic 8 words for Part C
-  useEffect(() => {
-    const copy = JSON.parse(JSON.stringify(EXAM_SETS[currentSetKey]));
-    setExamData(copy);
-    setEditableData(copy);
-    resetStudentState();
-
-    // Dynamically calculate the 8 words (6 answers + 2 random distractors from remaining 18)
-    const correctAnswers = Object.values(copy.partC.answers);
-    const distractorsPool = FULL_VOCAB_POOL.filter(word => !correctAnswers.includes(word));
-    const randomDistractors = shuffleArray(distractorsPool).slice(0, 2);
-    const finalEightWords = shuffleArray([...correctAnswers, ...randomDistractors]);
     
-    setPartCWords(finalEightWords);
-  }, [currentSetKey]);
+    /* -----------------------------------------------------------
+       PRINT-SPECIFIC STYLES (16pt Kids Font & Strict 5-Page Layout)
+       ----------------------------------------------------------- */
+    @media print {
+      @page {
+        size: A4;
+        margin: 0.8cm 0.6cm 0.8cm 0.6cm !important; /* Optimizing margins for 16pt font space */
+      }
+      html, body {
+        background-color: white !important;
+        color: black !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .exam-container {
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+      
+      /* Reset main wrapper padding during printing */
+      #exam-sheet {
+        padding: 0 !important;
+        border: none !important;
+      }
 
-  const resetStudentState = () => {
-    setStudentAnswers({});
-    setStudentScore(null);
-    setIsSubmitted(false);
-  };
+      /* Control each page block as a strict unit to prevent overflow leaking */
+      #print-page-1, #print-page-2, #print-page-3, #print-page-4 {
+        box-sizing: border-box !important;
+        position: relative !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        /* Force strictly 16pt for kids reading */
+        font-size: 16pt !important;
+        line-height: 1.45 !important;
+      }
+      
+      /* Force strict page cuts after pages 1, 2, 3 and 4 */
+      #print-page-1, #print-page-2, #print-page-3, #print-page-4 {
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+      
+      /* Page 5 (Answer Key) style: keep it small to fit single page */
+      #print-page-5 {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+        box-sizing: border-box !important;
+      }
+      #print-page-5 h2 {
+        font-size: 14pt !important;
+      }
+      #print-page-5 h4 {
+        font-size: 11pt !important;
+      }
+      
+      /* Elegant top spacing on newly broken pages for clean print header margins */
+      #print-page-2, #print-page-3, #print-page-4, #print-page-5 {
+        padding-top: 0.5cm !important; 
+      }
+      
+      /* Tighten up spacing to eliminate redundant accumulative heights in 16pt */
+      section {
+        margin-bottom: 0.3cm !important;
+      }
+      p {
+        margin-bottom: 0.15cm !important;
+      }
+      .mb-10, .mb-8, .mb-6, .mb-4, .mb-2 {
+        margin-bottom: 0.1cm !important;
+      }
+      .mt-12, .mt-10, .mt-6 {
+        margin-top: 0.1cm !important;
+      }
+      .py-6, .py-8, .py-12 {
+        padding-top: 0.05cm !important;
+        padding-bottom: 0.05cm !important;
+      }
+      .ml-8 {
+        margin-left: 1.0rem !important; /* Slightly shift leftward for print horizontal economy */
+      }
+      
+      /* Adjust handwriting container (Part C) for print */
+      .border-2.border-dashed {
+        padding: 0.4cm !important;
+        margin-top: 0.15cm !important;
+        border-width: 1px !important;
+      }
 
-  const handleEditChange = (section, index, field, value, subKey = null) => {
-    const dataCopy = { ...editableData };
-    if (section === 'partA' || section === 'partB' || section === 'partD' || section === 'partF') {
-      dataCopy[section].questions[index][field] = value;
-    } else if (section === 'partC' || section === 'partE') {
-      if (subKey) {
-        dataCopy[section][field][subKey] = value;
-      } else {
-        dataCopy[section][field] = value;
+      /* Clean Answers Lines - No text printed inside inputs */
+      .input-blank {
+        border-bottom: 2px black dashed !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        width: 140px !important; /* Wider lines for kids writing */
+        display: inline-block !important;
+        text-align: center;
+        height: 1.1em !important;
+      }
+      .input-blank-large {
+        width: 200px !important; /* Wider lines for kids writing */
+        border-bottom: 2px black dashed !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        display: inline-block !important;
+        text-align: center;
+        height: 1.1em !important;
+      }
+
+      /* Hide any placeholder when printing */
+      input::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+
+      /* Control printed values (Blank worksheet vs Answer worksheet) */
+      body.print-answers-disabled input {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+      }
+      body.print-answers-enabled input {
+        color: #e11d48 !important; /* Rose-600 */
+        -webkit-text-fill-color: #e11d48 !important;
+        font-weight: bold !important;
+        font-family: 'Short Stack', cursive, sans-serif !important;
       }
     }
-    setEditableData(dataCopy);
-  };
-
-  const saveEdits = () => {
-    setExamData(JSON.parse(JSON.stringify(editableData)));
-    setIsEditing(false);
-    resetStudentState();
-
-    // Regenerate vocab words based on new answers
-    const correctAnswers = Object.values(editableData.partC.answers);
-    const distractorsPool = FULL_VOCAB_POOL.filter(word => !correctAnswers.includes(word));
-    const randomDistractors = shuffleArray(distractorsPool).slice(0, 2);
-    setPartCWords(shuffleArray([...correctAnswers, ...randomDistractors]));
-  };
-
-  const cancelEdits = () => {
-    setEditableData(JSON.parse(JSON.stringify(examData)));
-    setIsEditing(false);
-  };
-
-  const gradeExam = () => {
-    let score = 0;
     
-    // Part A: 8 marks
-    examData.partA.questions.forEach(q => {
-      const studentAns = (studentAnswers[q.id] || "").trim().toLowerCase();
-      const correctAns = q.ans.toLowerCase();
-      if (studentAns === correctAns) score += 1;
-    });
-
-    // Part B: 6 marks
-    examData.partB.questions.forEach(q => {
-      const studentAns = (studentAnswers[q.id] || "").trim().toLowerCase();
-      const correctAns = q.ans.toLowerCase();
-      if (studentAns === correctAns) score += 1;
-    });
-
-    // Part C: 12 marks (2 marks each)
-    Object.keys(examData.partC.answers).forEach(key => {
-      const studentAns = (studentAnswers[key] || "").trim().toLowerCase();
-      const correctAns = examData.partC.answers[key].toLowerCase();
-      if (studentAns === correctAns) score += 2;
-    });
-
-    // Part D: 6 marks
-    examData.partD.questions.forEach(q => {
-      const studentAns = (studentAnswers[q.id] || "").trim().toLowerCase();
-      const correctAns = q.ans.toLowerCase();
-      if (studentAns === correctAns) score += 1;
-    });
-
-    // Part E: 10 marks (2 marks each)
-    Object.keys(examData.partE.answers).forEach(key => {
-      const studentAns = (studentAnswers[key] || "").trim().toLowerCase();
-      const correctAns = examData.partE.answers[key].toLowerCase();
-      if (studentAns === correctAns) score += 2;
-    });
-
-    // Part F: 8 marks
-    examData.partF.questions.forEach(q => {
-      const studentAns = (studentAnswers[q.id] || "").trim().toLowerCase();
-      const correctAns = q.ans.toLowerCase();
-      if (studentAns === correctAns) score += 1;
-    });
-
-    setStudentScore(score);
-    setIsSubmitted(true);
-  };
-
-  const triggerPrint = () => {
-    window.print();
-  };
-
-  // Class helper for responsive font sizing
-  const getFontSizeClass = (element) => {
-    if (fontSize === 'large') {
-      if (element === 'question') return 'text-lg md:text-xl';
-      if (element === 'body') return 'text-base md:text-lg leading-relaxed';
-      if (element === 'instruction') return 'text-sm md:text-base font-semibold';
-      if (element === 'input') return 'text-base md:text-lg h-9';
-    } else {
-      if (element === 'question') return 'text-base md:text-lg';
-      if (element === 'body') return 'text-sm md:text-base leading-normal';
-      if (element === 'instruction') return 'text-xs md:text-sm font-medium';
-      if (element === 'input') return 'text-sm md:text-base h-8';
+    /* Interactive input styles in web view */
+    .interactive-input {
+      border-bottom: 2px solid #cbd5e1;
+      transition: all 0.2s ease;
     }
-  };
+    .interactive-input:focus {
+      border-bottom-color: #6366f1;
+      outline: none;
+    }
+    @keyframes bounce-slow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .animate-bounce-slow {
+      animation: bounce-slow 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-indigo-50/40 text-slate-800 min-h-screen pb-12">
 
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans print:bg-white print:text-black">
-      {/* HEADER SECTION - Hidden on Print */}
-      <header className="bg-gradient-to-r from-blue-700 via-indigo-700 to-indigo-800 text-white shadow-md print:hidden">
-        <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-white/10 p-2.5 rounded-xl border border-white/20">
-              <BookOpen className="w-8 h-8 text-yellow-300" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">FS2 英語試卷生成器</h1>
-              <p className="text-indigo-100 text-sm mt-0.5">專業小學英文老師温習工具 • 模擬 LOGOS 試題結構 (Usage 50分)</p>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap items-center justify-center gap-2.5">
-            {/* Set Selection (A - E) */}
-            <div className="bg-indigo-900/40 p-1 rounded-lg border border-indigo-500/30 flex items-center gap-1">
-              <span className="text-xs font-semibold px-2 text-indigo-200">選擇題庫:</span>
-              {Object.keys(EXAM_SETS).map((setKey) => (
-                <button
-                  key={setKey}
-                  onClick={() => {
-                    setCurrentSetKey(setKey);
-                    setIsEditing(false);
-                  }}
-                  className={`px-2.5 py-1 text-xs font-bold rounded transition-all ${
-                    currentSetKey === setKey 
-                      ? 'bg-yellow-400 text-slate-950 shadow-sm' 
-                      : 'text-white hover:bg-white/10'
-                  }`}
-                >
-                  {setKey.replace('Set', 'Set ')}
-                </button>
-              ))}
-            </div>
-
-            {/* Mode Switcher */}
-            <div className="bg-indigo-900/40 p-1 rounded-lg border border-indigo-500/30 flex">
-              <button
-                onClick={() => { setMode('teacher'); resetStudentState(); }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded transition-all ${
-                  mode === 'teacher' ? 'bg-white text-indigo-950 shadow' : 'text-indigo-100 hover:text-white'
-                }`}
-              >
-                <Printer className="w-3.5 h-3.5" />
-                教師列印/編輯
-              </button>
-              <button
-                onClick={() => { setMode('student'); setIsEditing(false); }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded transition-all ${
-                  mode === 'student' ? 'bg-white text-indigo-950 shadow' : 'text-indigo-100 hover:text-white'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-                學生互動練習
-              </button>
-            </div>
-          </div>
+  <!-- Top Bar (Hidden in PDF Print out) -->
+  <header class="no-print sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-indigo-100 shadow-sm px-4 py-3">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
         </div>
-      </header>
-
-      {/* QUICK STATS & TOOLS - Hidden on Print */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm print:hidden">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-          
-          <div className="flex items-center gap-2.5 text-sm text-slate-600">
-            <span className="font-semibold text-slate-900">目前內容:</span>
-            <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
-              {examData.title}
-            </span>
-            <span className="text-slate-300">|</span>
-            <span>總分: <strong className="text-indigo-600 font-bold">50 Marks</strong></span>
-          </div>
-
-          {/* Sizing & Action controls */}
-          <div className="flex items-center flex-wrap gap-2">
-            {/* Font Size Toggler */}
-            <div className="flex items-center gap-1 border border-slate-300 rounded-lg p-1 mr-2 bg-slate-50">
-              <Type className="w-3.5 h-3.5 text-slate-500 ml-1" />
-              <button
-                onClick={() => setFontSize('standard')}
-                className={`px-2 py-0.5 text-xs font-medium rounded ${fontSize === 'standard' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-200'}`}
-              >
-                標準
-              </button>
-              <button
-                onClick={() => setFontSize('large')}
-                className={`px-2 py-0.5 text-xs font-medium rounded ${fontSize === 'large' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-200'}`}
-              >
-                放大字型
-              </button>
-            </div>
-
-            {mode === 'teacher' ? (
-              <>
-                <button
-                  onClick={() => setShowAnswers(!showAnswers)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
-                    showAnswers 
-                      ? 'bg-amber-500 text-white border-amber-600 hover:bg-amber-600' 
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  {showAnswers ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  {showAnswers ? '隱藏答案' : '顯示答案'}
-                </button>
-
-                {isEditing ? (
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={saveEdits}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-sm transition-all"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                      儲存編輯
-                    </button>
-                    <button
-                      onClick={cancelEdits}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-all"
-                    >
-                      <Undo className="w-3.5 h-3.5" />
-                      取消
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => { setIsEditing(true); setEditableData(JSON.parse(JSON.stringify(examData))); }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-all"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    修改題目
-                  </button>
-                )}
-
-                <button
-                  onClick={triggerPrint}
-                  disabled={isEditing}
-                  className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm transition-all disabled:opacity-55"
-                >
-                  <Printer className="w-4 h-4" />
-                  列印 A4 考卷
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={resetStudentState}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  重新開始
-                </button>
-                <button
-                  onClick={gradeExam}
-                  disabled={isSubmitted}
-                  className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-sm transition-all disabled:bg-slate-300 disabled:text-slate-500"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  提交考卷並批改
-                </button>
-              </>
-            )}
-          </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
+            FS1 English Assessment Generator 
+            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">小二英文 (16pt 護眼版)</span>
+          </h1>
+          <p class="text-xs text-slate-500">香港小學二級 (FS1) 第二次總結性評估溫習工作紙</p>
         </div>
       </div>
 
-      {/* WORKSPACE AREA */}
-      <main className="max-w-4xl mx-auto px-4 py-6 print:py-0 print:px-0">
-        
-        {/* STUDENT GRADE BANNER */}
-        {mode === 'student' && isSubmitted && (
-          <div className="mb-6 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="bg-emerald-500 p-3.5 rounded-2xl text-white shadow-md">
-                <Award className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-slate-800">批改完成！</h3>
-                <p className="text-sm text-slate-500">所有的錯誤答案均已用紅框標記，並附上正確答案解析，請向下滾動查看。</p>
-              </div>
-            </div>
-            <div className="text-center bg-white px-6 py-3 rounded-xl border border-emerald-100 shadow-inner">
-              <span className="block text-xs uppercase tracking-wider font-bold text-slate-400">總分 (Usage)</span>
-              <span className="text-4xl font-extrabold text-emerald-600">{studentScore} <span className="text-xl text-slate-500">/ 50</span></span>
-            </div>
-          </div>
-        )}
-
-        {/* TEACHER EDITING WARNING INFO */}
-        {mode === 'teacher' && isEditing && (
-          <div className="mb-6 bg-yellow-50 border border-yellow-200 p-4 rounded-xl flex items-start gap-3 print:hidden">
-            <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="font-bold text-yellow-800 text-sm">自訂編輯模式已開啟</h4>
-              <p className="text-xs text-yellow-700 mt-1">
-                您可以直接在下方編輯框中更改題目、空缺答案或解析。編輯完成後，請點擊「儲存編輯」按鈕使之生效。
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* ====================================
-            THE EXAM PAPER PAPER CONTAINER
-           ==================================== */}
-        <div className="bg-white shadow-md border border-slate-200 p-8 rounded-2xl print:shadow-none print:border-none print:p-0 print:bg-white">
-          
-          {/* EXAM HEADER */}
-          <div className="border-b-4 border-slate-800 pb-5 mb-6 text-center">
-            <h2 className="text-2xl font-bold tracking-wide uppercase text-slate-900">
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editableData.title}
-                  onChange={(e) => setEditableData({...editableData, title: e.target.value})}
-                  className="w-full text-center font-bold bg-yellow-50 p-1 border border-yellow-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 text-xl"
-                />
-              ) : examData.title}
-            </h2>
-            <h3 className="text-lg font-semibold text-slate-700 mt-1 uppercase tracking-wider">
-              Section II. Usage (50 marks)
-            </h3>
-            
-            {/* Name and class info block */}
-            <div className="grid grid-cols-3 gap-4 mt-6 text-base text-left max-w-2xl mx-auto border-2 p-4 rounded-lg border-slate-400 print:border-slate-500">
-              <div>
-                <span className="font-bold">Name:</span> ___________________
-              </div>
-              <div>
-                <span className="font-bold">Class:</span> FS2 ______
-              </div>
-              <div className="text-right">
-                <span className="font-bold">Date:</span> _________________
-              </div>
-            </div>
-          </div>
-
-          {/* ==========================================================
-              PART A: MIXED TENSES (8 Marks)
-             ========================================================== */}
-          <section className="mb-8 page-break-inside-avoid">
-            <div className="flex justify-between items-start border-b-2 border-slate-400 pb-1 mb-3">
-              <h4 className="font-bold text-slate-900 text-lg md:text-xl">
-                Part A. Mixed Tenses (8 marks, 1 mark each)
-              </h4>
-              <span className="font-bold text-slate-700 text-base">Marks: _____ / 8</span>
-            </div>
-            
-            <p className={`italic text-slate-700 mb-4 bg-slate-100/70 p-3 rounded print:bg-transparent print:p-0 ${getFontSizeClass('instruction')}`}>
-              {isEditing ? (
-                <textarea
-                  value={editableData.partA.instructions}
-                  onChange={(e) => handleEditChange('partA', null, 'instructions', e.target.value)}
-                  className="w-full text-sm font-serif bg-yellow-50 border border-yellow-300 rounded p-1.5 focus:outline-none"
-                  rows={2}
-                />
-              ) : examData.partA.instructions}
-            </p>
-
-            <div className="space-y-4">
-              {(isEditing ? editableData.partA.questions : examData.partA.questions).map((q, idx) => {
-                const parts = q.text.split('__________');
-                const isStudentCorrect = isSubmitted && (studentAnswers[q.id] || "").trim().toLowerCase() === q.ans.toLowerCase();
-                
-                return (
-                  <div key={q.id} className={`flex items-start gap-3 leading-relaxed ${getFontSizeClass('question')}`}>
-                    <span className="font-bold text-slate-900 min-w-[24px] mt-0.5">{idx + 1}.</span>
-                    <div className="flex-1">
-                      {isEditing ? (
-                        <div className="space-y-2 bg-yellow-50/50 p-3 rounded border border-yellow-200">
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="font-bold text-yellow-800 shrink-0">題目句式:</span>
-                            <input
-                              type="text"
-                              value={q.text}
-                              onChange={(e) => handleEditChange('partA', idx, 'text', e.target.value)}
-                              className="flex-1 bg-white border border-slate-300 rounded px-2 py-1"
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-yellow-800 shrink-0">答案:</span>
-                              <input
-                                type="text"
-                                value={q.ans}
-                                onChange={(e) => handleEditChange('partA', idx, 'ans', e.target.value)}
-                                className="w-full bg-white border border-slate-300 rounded px-2 py-1"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-yellow-800 shrink-0">解析提示:</span>
-                              <input
-                                type="text"
-                                value={q.hint}
-                                onChange={(e) => handleEditChange('partA', idx, 'hint', e.target.value)}
-                                className="w-full bg-white border border-slate-300 rounded px-2 py-1"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <span>{parts[0]}</span>
-                          
-                          {mode === 'student' ? (
-                            <span className="inline-block px-1">
-                              <input
-                                type="text"
-                                value={studentAnswers[q.id] || ""}
-                                onChange={(e) => setStudentAnswers({ ...studentAnswers, [q.id]: e.target.value })}
-                                disabled={isSubmitted}
-                                className={`border-b-2 outline-none text-center font-semibold px-2 py-0.5 w-44 transition-all ${getFontSizeClass('input')} ${
-                                  isSubmitted 
-                                    ? isStudentCorrect 
-                                      ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
-                                      : 'bg-rose-50 border-rose-500 text-rose-700 font-bold'
-                                    : 'border-slate-500 focus:border-indigo-600 bg-slate-50 focus:bg-white'
-                                }`}
-                              />
-                            </span>
-                          ) : (
-                            <span className="relative inline-block border-b-2 border-slate-800 px-4 min-w-[160px] text-center">
-                              {showAnswers ? (
-                                <strong className="text-blue-700 font-bold font-serif">{q.ans}</strong>
-                              ) : (
-                                <span className="opacity-0">{q.ans || "placeholder"}</span>
-                              )}
-                            </span>
-                          )}
-                          
-                          <span>{parts[1]}</span>
-
-                          {mode === 'student' && isSubmitted && (
-                            <div className="mt-1 flex flex-col gap-0.5 text-xs md:text-sm">
-                              {isStudentCorrect ? (
-                                <span className="text-emerald-600 font-medium flex items-center gap-1">✓ Correct!</span>
-                              ) : (
-                                <>
-                                  <span className="text-rose-600 font-bold">✗ Incorrect. Correct answer: <span className="underline font-serif">{q.ans}</span></span>
-                                  <span className="text-slate-500 italic">Hint: {q.hint}</span>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* ==========================================================
-              PART B: PAST SIMPLE TENSE (6 Marks)
-             ========================================================== */}
-          <section className="mb-8 page-break-inside-avoid">
-            <div className="flex justify-between items-start border-b-2 border-slate-400 pb-1 mb-3">
-              <h4 className="font-bold text-slate-900 text-lg md:text-xl">
-                Part B. Past Simple Tense (Regular and Irregular Verbs) (6 marks, 1 mark each)
-              </h4>
-              <span className="font-bold text-slate-700 text-base">Marks: _____ / 6</span>
-            </div>
-
-            <p className={`italic text-slate-700 mb-4 bg-slate-100/70 p-3 rounded print:bg-transparent print:p-0 ${getFontSizeClass('instruction')}`}>
-              {isEditing ? (
-                <textarea
-                  value={editableData.partB.instructions}
-                  onChange={(e) => handleEditChange('partB', null, 'instructions', e.target.value)}
-                  className="w-full text-sm font-serif bg-yellow-50 border border-yellow-300 rounded p-1.5 focus:outline-none"
-                  rows={2}
-                />
-              ) : examData.partB.instructions}
-            </p>
-
-            <div className="space-y-4">
-              {(isEditing ? editableData.partB.questions : examData.partB.questions).map((q, idx) => {
-                const parts = q.text.split('__________');
-                const isStudentCorrect = isSubmitted && (studentAnswers[q.id] || "").trim().toLowerCase() === q.ans.toLowerCase();
-
-                return (
-                  <div key={q.id} className={`flex items-start gap-3 leading-relaxed ${getFontSizeClass('question')}`}>
-                    <span className="font-bold text-slate-900 min-w-[24px] mt-0.5">{idx + 1}.</span>
-                    <div className="flex-1">
-                      {isEditing ? (
-                        <div className="space-y-2 bg-yellow-50/50 p-3 rounded border border-yellow-200">
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="font-bold text-yellow-800 shrink-0">題目句式:</span>
-                            <input
-                              type="text"
-                              value={q.text}
-                              onChange={(e) => handleEditChange('partB', idx, 'text', e.target.value)}
-                              className="flex-1 bg-white border border-slate-300 rounded px-2 py-1"
-                            />
-                          </div>
-                          <div className="flex items-center gap-4 text-sm">
-                            <div className="flex-1 flex items-center gap-2">
-                              <span className="font-bold text-yellow-800 shrink-0">正確答案:</span>
-                              <input
-                                type="text"
-                                value={q.ans}
-                                onChange={(e) => handleEditChange('partB', idx, 'ans', e.target.value)}
-                                className="w-full bg-white border border-slate-300 rounded px-2 py-1"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-yellow-800 shrink-0">動詞類型:</span>
-                              <select
-                                value={q.type}
-                                onChange={(e) => handleEditChange('partB', idx, 'type', e.target.value)}
-                                className="bg-white border border-slate-300 rounded px-2 py-1"
-                              >
-                                <option value="regular">Regular (+ed)</option>
-                                <option value="irregular">Irregular (不規則變形)</option>
-                                <option value="negative">Negative (did not + base)</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <span>{parts[0]}</span>
-
-                          {mode === 'student' ? (
-                            <span className="inline-block px-1">
-                              <input
-                                type="text"
-                                value={studentAnswers[q.id] || ""}
-                                onChange={(e) => setStudentAnswers({ ...studentAnswers, [q.id]: e.target.value })}
-                                disabled={isSubmitted}
-                                className={`border-b-2 outline-none text-center font-semibold px-2 py-0.5 w-44 transition-all ${getFontSizeClass('input')} ${
-                                  isSubmitted 
-                                    ? isStudentCorrect 
-                                      ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
-                                      : 'bg-rose-50 border-rose-500 text-rose-700 font-bold'
-                                    : 'border-slate-500 focus:border-indigo-600 bg-slate-50 focus:bg-white'
-                                }`}
-                              />
-                            </span>
-                          ) : (
-                            <span className="relative inline-block border-b-2 border-slate-800 px-4 min-w-[160px] text-center">
-                              {showAnswers ? (
-                                <strong className="text-blue-700 font-bold font-serif">{q.ans}</strong>
-                              ) : (
-                                <span className="opacity-0">{q.ans || "placeholder"}</span>
-                              )}
-                            </span>
-                          )}
-
-                          <span>{parts[1]}</span>
-
-                          {mode === 'student' && isSubmitted && (
-                            <div className="mt-1 flex flex-col gap-0.5 text-xs md:text-sm">
-                              {isStudentCorrect ? (
-                                <span className="text-emerald-600 font-medium flex items-center gap-1">✓ Correct!</span>
-                              ) : (
-                                <span className="text-rose-600 font-bold">
-                                  ✗ Incorrect. Correct past simple form: <span className="underline font-serif">{q.ans}</span>
-                                  <span className="text-slate-500 font-normal italic ml-2">({q.type === 'regular' ? 'Regular ending in -ed' : q.type === 'negative' ? 'Negative form' : 'Irregular form'})</span>
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* ==========================================================
-              PART C: VOCABULARY (12 Marks)
-             ========================================================== */}
-          <section className="mb-8 page-break-inside-avoid">
-            <div className="flex justify-between items-start border-b-2 border-slate-400 pb-1 mb-3">
-              <h4 className="font-bold text-slate-900 text-lg md:text-xl">
-                Part C. Vocabulary (12 marks, 2 marks each)
-              </h4>
-              <span className="font-bold text-slate-700 text-base">Marks: _____ / 12</span>
-            </div>
-
-            <p className={`italic text-slate-700 mb-4 bg-slate-100/70 p-3 rounded print:bg-transparent print:p-0 ${getFontSizeClass('instruction')}`}>
-              {isEditing ? (
-                <textarea
-                  value={editableData.partC.instructions}
-                  onChange={(e) => handleEditChange('partC', null, 'instructions', e.target.value)}
-                  className="w-full text-sm font-serif bg-yellow-50 border border-yellow-300 rounded p-1.5 focus:outline-none"
-                  rows={2}
-                />
-              ) : examData.partC.instructions}
-            </p>
-
-            {/* Dynamic Vocabulary Word Box */}
-            <div className="border-2 border-slate-800 p-4 rounded-xl mb-6 bg-slate-50 text-center print:bg-white">
-              {isEditing ? (
-                <div className="space-y-1 text-left text-sm text-yellow-800">
-                  <span className="font-bold block">詞彙盒說明：</span>
-                  <p className="text-xs text-slate-600 mb-2">
-                    系統會為每個題庫自動加入該篇短文所需的正確答案，並隨機從 24 字總單字庫中抽取其餘 2 個作為干擾項打亂呈現，無需手動修改。
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-4 gap-3 text-base md:text-lg font-bold tracking-wide">
-                  {partCWords.map((word, i) => (
-                    <div key={i} className="border-2 border-slate-300 py-2 rounded-xl bg-white shadow-sm print:shadow-none print:border-slate-500">
-                      {word}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Passage Text */}
-            <div className={`p-5 border-2 border-slate-200 bg-indigo-50/10 rounded-2xl print:p-0 print:border-none print:bg-transparent ${getFontSizeClass('body')}`}>
-              {isEditing ? (
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-sm font-bold text-yellow-800 block mb-1">填充文章 (用 (1)__________ 至 (6)__________ 代表空格)：</span>
-                    <textarea
-                      value={editableData.partC.passage}
-                      onChange={(e) => handleEditChange('partC', null, 'passage', e.target.value)}
-                      className="w-full text-sm font-serif bg-white border border-slate-300 rounded p-2"
-                      rows={6}
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 bg-yellow-50 p-3 rounded border border-yellow-200">
-                    <div className="text-xs font-bold text-yellow-800 col-span-3">各空正確答案 (必須屬於 24 字庫中)：</div>
-                    {[1, 2, 3, 4, 5, 6].map((num) => (
-                      <div key={num} className="flex items-center gap-1 text-xs">
-                        <span>({num})</span>
-                        <input
-                          type="text"
-                          value={editableData.partC.answers[`c${num}`] || ''}
-                          onChange={(e) => handleEditChange('partC', null, 'answers', e.target.value, `c${num}`)}
-                          className="w-24 bg-white border border-slate-300 rounded px-1.5 py-0.5"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  {(() => {
-                    let text = examData.partC.passage;
-                    const items = [];
-                    for (let i = 1; i <= 6; i++) {
-                      const placeholder = `(${i})__________`;
-                      const parts = text.split(placeholder);
-                      items.push(<span key={`text-c-${i}`}>{parts[0]}</span>);
-                      
-                      const qId = `c${i}`;
-                      const isStudentCorrect = isSubmitted && (studentAnswers[qId] || "").trim().toLowerCase() === examData.partC.answers[qId].toLowerCase();
-
-                      if (mode === 'student') {
-                        items.push(
-                          <span key={`input-c-${i}`} className="inline-block px-1">
-                            <span className="text-xs font-bold text-slate-500">({i})</span>
-                            <input
-                              type="text"
-                              value={studentAnswers[qId] || ""}
-                              onChange={(e) => setStudentAnswers({ ...studentAnswers, [qId]: e.target.value })}
-                              disabled={isSubmitted}
-                              className={`border-b-2 outline-none text-center font-semibold px-2 py-0.5 w-32 transition-all text-sm ${getFontSizeClass('input')} ${
-                                isSubmitted 
-                                  ? isStudentCorrect 
-                                    ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
-                                    : 'bg-rose-50 border-rose-500 text-rose-700 font-bold'
-                                  : 'border-slate-500 focus:border-indigo-600 bg-slate-50 focus:bg-white'
-                              }`}
-                            />
-                            {isSubmitted && !isStudentCorrect && (
-                              <span className="text-xs font-bold text-rose-600 ml-1">({examData.partC.answers[qId]})</span>
-                            )}
-                          </span>
-                        );
-                      } else {
-                        items.push(
-                          <span key={`blank-c-${i}`} className="inline-block">
-                            <strong className="text-sm font-bold text-slate-800">({i})</strong>
-                            <span className="relative inline-block border-b-2 border-slate-800 px-3 min-w-[110px] text-center">
-                              {showAnswers ? (
-                                <strong className="text-blue-700 font-bold font-serif">{examData.partC.answers[qId]}</strong>
-                              ) : (
-                                <span className="opacity-0">placeholder</span>
-                              )}
-                            </span>
-                          </span>
-                        );
-                      }
-                      
-                      text = parts[1] || "";
-                    }
-                    items.push(<span key="text-c-end">{text}</span>);
-                    return <p className="leading-10 text-justify">{items}</p>;
-                  })()}
-                </div>
-              )}
-            </div>
-          </section>
-
-          {/* ==========================================================
-              PART D: PREPOSITIONS (6 Marks)
-             ========================================================== */}
-          <section className="mb-8 page-break-inside-avoid">
-            <div className="flex justify-between items-start border-b-2 border-slate-400 pb-1 mb-3">
-              <h4 className="font-bold text-slate-900 text-lg md:text-xl">
-                Part D. Prepositions (6 marks, 1 mark each)
-              </h4>
-              <span className="font-bold text-slate-700 text-base">Marks: _____ / 6</span>
-            </div>
-
-            <p className={`italic text-slate-700 mb-4 bg-slate-100/70 p-3 rounded print:bg-transparent print:p-0 ${getFontSizeClass('instruction')}`}>
-              {isEditing ? (
-                <textarea
-                  value={editableData.partD.instructions}
-                  onChange={(e) => handleEditChange('partD', null, 'instructions', e.target.value)}
-                  className="w-full text-sm font-serif bg-yellow-50 border border-yellow-300 rounded p-1.5 focus:outline-none"
-                  rows={2}
-                />
-              ) : examData.partD.instructions}
-            </p>
-
-            {/* Word box for prepositions */}
-            <div className="border border-slate-400 border-dashed p-3.5 rounded-lg mb-4 text-center bg-slate-50 print:bg-white">
-              {isEditing ? (
-                <div className="space-y-2 text-left text-xs">
-                  <span className="font-bold text-yellow-800">可選介詞（以半型逗號分隔）：</span>
-                  <input
-                    type="text"
-                    value={editableData.partD.words.join(', ')}
-                    onChange={(e) => {
-                      const wordsArray = e.target.value.split(',').map(w => w.trim());
-                      setEditableData({...editableData, partD: { ...editableData.partD, words: wordsArray }});
-                    }}
-                    className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-sm"
-                  />
-                </div>
-              ) : (
-                <span className="text-base md:text-lg font-bold tracking-wider space-x-6">
-                  {examData.partD.words.map((w, idx) => (
-                    <span key={idx} className="inline-block px-2">{w}</span>
-                  ))}
-                </span>
-              )}
-            </div>
-
-            {/* Preposition Questions */}
-            <div className="space-y-4 mt-4">
-              {(isEditing ? editableData.partD.questions : examData.partD.questions).map((q, idx) => {
-                const parts = q.text.split('__________');
-                const isStudentCorrect = isSubmitted && (studentAnswers[q.id] || "").trim().toLowerCase() === q.ans.toLowerCase();
-
-                return (
-                  <div key={q.id} className={`flex items-start gap-3 leading-relaxed ${getFontSizeClass('question')}`}>
-                    <span className="font-bold text-slate-900 min-w-[24px] mt-0.5">{idx + 1}.</span>
-                    <div className="flex-1">
-                      {isEditing ? (
-                        <div className="space-y-2 bg-yellow-50/50 p-3 rounded border border-yellow-200">
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="font-bold text-yellow-800 shrink-0">題目句式:</span>
-                            <input
-                              type="text"
-                              value={q.text}
-                              onChange={(e) => handleEditChange('partD', idx, 'text', e.target.value)}
-                              className="flex-1 bg-white border border-slate-300 rounded px-2 py-1"
-                            />
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="font-bold text-yellow-800 shrink-0">答案介詞:</span>
-                            <input
-                              type="text"
-                              value={q.ans}
-                              onChange={(e) => handleEditChange('partD', idx, 'ans', e.target.value)}
-                              className="w-48 bg-white border border-slate-300 rounded px-2 py-1"
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <span>{parts[0]}</span>
-
-                          {mode === 'student' ? (
-                            <span className="inline-block px-1">
-                              <input
-                                type="text"
-                                value={studentAnswers[q.id] || ""}
-                                onChange={(e) => setStudentAnswers({ ...studentAnswers, [q.id]: e.target.value })}
-                                disabled={isSubmitted}
-                                className={`border-b-2 outline-none text-center font-semibold px-2 py-0.5 w-32 transition-all ${getFontSizeClass('input')} ${
-                                  isSubmitted 
-                                    ? isStudentCorrect 
-                                      ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
-                                      : 'bg-rose-50 border-rose-500 text-rose-700 font-bold'
-                                    : 'border-slate-500 focus:border-indigo-600 bg-slate-50 focus:bg-white'
-                                }`}
-                              />
-                            </span>
-                          ) : (
-                            <span className="relative inline-block border-b-2 border-slate-800 px-4 min-w-[120px] text-center">
-                              {showAnswers ? (
-                                <strong className="text-blue-700 font-bold font-serif">{q.ans}</strong>
-                              ) : (
-                                <span className="opacity-0">{q.ans || "placeholder"}</span>
-                              )}
-                            </span>
-                          )}
-
-                          <span>{parts[1]}</span>
-
-                          {mode === 'student' && isSubmitted && (
-                            <span className="ml-2">
-                              {isStudentCorrect ? (
-                                <span className="text-emerald-600 font-medium">✓ Correct!</span>
-                              ) : (
-                                <span className="text-rose-600 font-bold">✗ Incorrect (Ans: <span className="underline font-serif">{q.ans}</span>)</span>
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* ==========================================================
-              PART E: COMPARATIVE & SUPERLATIVE ADJECTIVES (10 Marks)
-             ========================================================== */}
-          <section className="mb-8 page-break-inside-avoid">
-            <div className="flex justify-between items-start border-b-2 border-slate-400 pb-1 mb-3">
-              <h4 className="font-bold text-slate-900 text-lg md:text-xl">
-                Part E. Comparative and Superlative Adjectives (10 marks, 2 marks each)
-              </h4>
-              <span className="font-bold text-slate-700 text-base">Marks: _____ / 10</span>
-            </div>
-
-            <p className={`italic text-slate-700 mb-4 bg-slate-100/70 p-3 rounded print:bg-transparent print:p-0 ${getFontSizeClass('instruction')}`}>
-              {isEditing ? (
-                <textarea
-                  value={editableData.partE.instructions}
-                  onChange={(e) => handleEditChange('partE', null, 'instructions', e.target.value)}
-                  className="w-full text-sm font-serif bg-yellow-50 border border-yellow-300 rounded p-1.5 focus:outline-none"
-                  rows={2}
-                />
-              ) : examData.partE.instructions}
-            </p>
-
-            <div className={`p-5 border-2 border-slate-200 bg-slate-50/45 rounded-2xl print:p-0 print:border-none print:bg-transparent ${getFontSizeClass('body')}`}>
-              {isEditing ? (
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-sm font-bold text-yellow-800 block mb-1">填充短文 (用 (1)__________ 至 (5)__________ 代表空格)：</span>
-                    <textarea
-                      value={editableData.partE.passage}
-                      onChange={(e) => handleEditChange('partE', null, 'passage', e.target.value)}
-                      className="w-full text-sm font-serif bg-white border border-slate-300 rounded p-2"
-                      rows={6}
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 bg-yellow-50 p-3 rounded border border-yellow-200">
-                    <div className="text-xs font-bold text-yellow-800 col-span-3">各空正確形容詞：</div>
-                    {[1, 2, 3, 4, 5].map((num) => (
-                      <div key={num} className="flex items-center gap-1 text-xs">
-                        <span>({num})</span>
-                        <input
-                          type="text"
-                          value={editableData.partE.answers[`e${num}`] || ''}
-                          onChange={(e) => handleEditChange('partE', null, 'answers', e.target.value, `e${num}`)}
-                          className="w-28 bg-white border border-slate-300 rounded px-1.5 py-0.5"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  {(() => {
-                    let text = examData.partE.passage;
-                    const items = [];
-                    for (let i = 1; i <= 5; i++) {
-                      const placeholder = `(${i})__________`;
-                      const parts = text.split(placeholder);
-                      items.push(<span key={`text-e-${i}`}>{parts[0]}</span>);
-
-                      const qId = `e${i}`;
-                      const isStudentCorrect = isSubmitted && (studentAnswers[qId] || "").trim().toLowerCase() === examData.partE.answers[qId].toLowerCase();
-
-                      if (mode === 'student') {
-                        items.push(
-                          <span key={`input-e-${i}`} className="inline-block px-1">
-                            <span className="text-xs font-bold text-slate-500">({i})</span>
-                            <input
-                              type="text"
-                              value={studentAnswers[qId] || ""}
-                              onChange={(e) => setStudentAnswers({ ...studentAnswers, [qId]: e.target.value })}
-                              disabled={isSubmitted}
-                              className={`border-b-2 outline-none text-center font-semibold px-2 py-0.5 w-36 transition-all text-sm ${getFontSizeClass('input')} ${
-                                isSubmitted 
-                                  ? isStudentCorrect 
-                                    ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
-                                    : 'bg-rose-50 border-rose-500 text-rose-700 font-bold'
-                                  : 'border-slate-500 focus:border-indigo-600 bg-slate-50 focus:bg-white'
-                              }`}
-                            />
-                            {isSubmitted && !isStudentCorrect && (
-                              <span className="text-xs font-bold text-rose-600 ml-1">({examData.partE.answers[qId]})</span>
-                            )}
-                          </span>
-                        );
-                      } else {
-                        items.push(
-                          <span key={`blank-e-${i}`} className="inline-block">
-                            <strong className="text-sm font-bold text-slate-800">({i})</strong>
-                            <span className="relative inline-block border-b-2 border-slate-800 px-3 min-w-[110px] text-center">
-                              {showAnswers ? (
-                                <strong className="text-blue-700 font-bold font-serif">{examData.partE.answers[qId]}</strong>
-                              ) : (
-                                <span className="opacity-0">placeholder</span>
-                              )}
-                            </span>
-                          </span>
-                        );
-                      }
-
-                      text = parts[1] || "";
-                    }
-                    items.push(<span key="text-e-end">{text}</span>);
-                    return <p className="leading-10 text-justify">{items}</p>;
-                  })()}
-                </div>
-              )}
-            </div>
-          </section>
-
-          {/* ==========================================================
-              PART F: PROOFREADING (8 Marks)
-             ========================================================== */}
-          <section className="mb-4 page-break-inside-avoid">
-            <div className="flex justify-between items-start border-b-2 border-slate-400 pb-1 mb-3">
-              <h4 className="font-bold text-slate-900 text-lg md:text-xl">
-                Part F. Proofreading (8 marks, 1 mark each)
-              </h4>
-              <span className="font-bold text-slate-700 text-base">Marks: _____ / 8</span>
-            </div>
-
-            <p className={`italic text-slate-700 mb-4 bg-slate-100/70 p-3 rounded print:bg-transparent print:p-0 ${getFontSizeClass('instruction')}`}>
-              {isEditing ? (
-                <textarea
-                  value={editableData.partF.instructions}
-                  onChange={(e) => handleEditChange('partF', null, 'instructions', e.target.value)}
-                  className="w-full text-sm font-serif bg-yellow-50 border border-yellow-300 rounded p-1.5 focus:outline-none"
-                  rows={2}
-                />
-              ) : examData.partF.instructions}
-            </p>
-
-            <div className="space-y-4">
-              {(isEditing ? editableData.partF.questions : examData.partF.questions).map((q, idx) => {
-                const isStudentCorrect = isSubmitted && (studentAnswers[q.id] || "").trim().toLowerCase() === q.ans.toLowerCase();
-
-                return (
-                  <div key={q.id} className="flex flex-col md:flex-row md:items-center justify-between gap-3 text-base md:text-lg leading-relaxed border-b border-slate-200 pb-3 last:border-none">
-                    <div className="flex items-start gap-3 flex-1">
-                      <span className="font-bold text-slate-900 min-w-[24px] mt-0.5">{idx + 1}.</span>
-                      <div className="flex-1">
-                        {isEditing ? (
-                          <div className="space-y-2 bg-yellow-50/50 p-3 rounded border border-yellow-200">
-                            <div className="flex items-center gap-2 text-sm">
-                              <span className="font-bold text-yellow-800 shrink-0">完整句子:</span>
-                              <input
-                                type="text"
-                                value={q.text}
-                                onChange={(e) => handleEditChange('partF', idx, 'text', e.target.value)}
-                                className="flex-1 bg-white border border-slate-300 rounded px-2 py-1"
-                              />
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-yellow-800 shrink-0">底線錯誤詞:</span>
-                                <input
-                                  type="text"
-                                  value={q.underlined}
-                                  onChange={(e) => handleEditChange('partF', idx, 'underlined', e.target.value)}
-                                  className="w-full bg-white border border-slate-300 rounded px-2 py-1"
-                                />
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-yellow-800 shrink-0">正確答案:</span>
-                                <input
-                                  type="text"
-                                  value={q.ans}
-                                  onChange={(e) => handleEditChange('partF', idx, 'ans', e.target.value)}
-                                  className="w-full bg-white border border-slate-300 rounded px-2 py-1"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className={getFontSizeClass('question')}>
-                            {(() => {
-                              const sentenceText = q.text;
-                              const target = q.underlined;
-                              if (!target) return <span>{sentenceText}</span>;
-                              
-                              const escapedTarget = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                              
-                              const startBoundary = /^\w/.test(target) ? '\\b' : '';
-                              const endBoundary = /\w$/.test(target) ? '\\b' : '';
-                              const regex = new RegExp(`${startBoundary}${escapedTarget}${endBoundary}`, 'i');
-                              
-                              const match = sentenceText.match(regex);
-                              if (!match) return <span>{sentenceText}</span>;
-                              
-                              const matchIndex = match.index;
-                              const before = sentenceText.substring(0, matchIndex);
-                              const after = sentenceText.substring(matchIndex + match[0].length);
-                              
-                              return (
-                                <span>
-                                  {before}
-                                  <span className="underline decoration-2 underline-offset-4 font-bold text-slate-900 bg-yellow-100/85 px-1 rounded print:bg-transparent">
-                                    {match[0]}
-                                  </span>
-                                  {after}
-                                </span>
-                              );
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Answer Area on the right */}
-                    {!isEditing && (
-                      <div className="flex items-center justify-end pl-8 md:pl-0">
-                        <span className="text-sm text-slate-400 mr-2">Ans:</span>
-                        {mode === 'student' ? (
-                          <div className="flex flex-col items-end">
-                            <input
-                              type="text"
-                              value={studentAnswers[q.id] || ""}
-                              onChange={(e) => setStudentAnswers({ ...studentAnswers, [q.id]: e.target.value })}
-                              disabled={isSubmitted}
-                              className={`border-b-2 outline-none text-center font-semibold px-2 py-0.5 w-36 text-sm transition-all ${getFontSizeClass('input')} ${
-                                isSubmitted 
-                                  ? isStudentCorrect 
-                                    ? 'bg-emerald-50 border-emerald-500 text-emerald-700' 
-                                    : 'bg-rose-50 border-rose-500 text-rose-700 font-bold'
-                                  : 'border-slate-500 focus:border-indigo-600 bg-slate-50 focus:bg-white'
-                              }`}
-                            />
-                            {isSubmitted && !isStudentCorrect && (
-                              <span className="text-xs font-bold text-emerald-600 mt-1 font-serif">({q.ans})</span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="relative inline-block border-b-2 border-slate-800 px-3 min-w-[140px] text-center">
-                            {showAnswers ? (
-                              <strong className="text-blue-700 font-bold font-serif">{q.ans}</strong>
-                            ) : (
-                              <span className="opacity-0">{q.ans || "placeholder"}</span>
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* EDIT SAVE AND CANCEL ACTIONS */}
-          {mode === 'teacher' && isEditing && (
-            <div className="mt-8 border-t border-slate-200 pt-6 flex justify-end gap-3 print:hidden">
-              <button
-                onClick={cancelEdits}
-                className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all"
-              >
-                放棄修改
-              </button>
-              <button
-                onClick={saveEdits}
-                className="px-6 py-2.5 text-sm font-bold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-1.5 transition-all"
-              >
-                <Save className="w-4 h-4" />
-                儲存並更新考卷
-              </button>
-            </div>
-          )}
-
-          {/* END OF PAPER MARKER */}
-          <div className="mt-12 text-center text-sm tracking-wider text-slate-400 uppercase border-t border-dashed border-slate-300 pt-4">
-            * End of Section II (Usage) *
-          </div>
-
+      <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+        <!-- Mode Toggles -->
+        <div class="bg-slate-100 p-1 rounded-xl flex items-center gap-1 text-sm font-semibold">
+          <button id="btn-mode-interactive" onclick="switchMode('interactive')" class="px-3 py-1.5 rounded-lg transition-all bg-white text-indigo-600 shadow-sm">
+            🖥️ 互動做題
+          </button>
+          <button id="btn-mode-print" onclick="switchMode('print')" class="px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-indigo-600">
+            📄 列印預覽
+          </button>
         </div>
 
-        {/* PRINT FOOTER GUIDE */}
-        <div className="mt-8 mb-12 text-center text-xs text-slate-400 print:hidden flex items-center justify-center gap-1">
-          <HelpCircle className="w-3.5 h-3.5" />
-          提示：點擊「列印 A4 考卷」將會自動隱藏頂部工具列及所有按鈕，只保留完美對齊的 A4 考試紙格式。
-        </div>
+        <!-- Answer Toggle for Print -->
+        <button id="btn-toggle-answers" onclick="toggleAnswers()" class="hidden bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-sm font-semibold transition-all">
+          🔑 顯示答案版
+        </button>
 
-      </main>
+        <!-- Shuffle Button -->
+        <button onclick="regenerateExam()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-sm font-semibold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18" />
+          </svg>
+          🎲 一鍵隨機更新全篇
+        </button>
+
+        <!-- Print Action -->
+        <button onclick="triggerPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-600/20 flex items-center gap-1.5 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          列印 / 輸出 PDF
+        </button>
+      </div>
     </div>
-  );
-}
+  </header>
+
+  <!-- Interactive Scoreboard (Hidden in Print Mode) -->
+  <div id="interactive-score-panel" class="no-print max-w-5xl mx-auto px-4 mt-6">
+    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl p-4 md:p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 animate-bounce-slow">
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold font-handwriting">Hello, Grammar Superstar! 🌟</h2>
+        <p class="text-sm text-indigo-100 mt-1">填寫下方所有空格，然後點擊右邊按鈕，線上即時批改對答案！</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="text-center bg-white/20 px-4 py-2 rounded-xl backdrop-blur-sm min-w-[100px]">
+          <div class="text-xs text-indigo-100 uppercase font-bold tracking-wider">Score</div>
+          <div class="text-2xl md:text-3xl font-black font-handwriting" id="score-text">-- / 50</div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <button onclick="checkInteractiveAnswers()" class="bg-white text-indigo-700 hover:bg-indigo-50 px-5 py-2 rounded-xl font-bold shadow-md hover:shadow-lg transition-all text-sm uppercase">
+            ✅ Check Answers
+          </button>
+          <button onclick="resetInteractiveForm()" class="bg-indigo-700/40 hover:bg-indigo-700/60 text-white px-5 py-1.5 rounded-xl text-xs font-semibold transition-all">
+            🔄 Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Document Container -->
+  <main class="max-w-4xl mx-auto px-4 py-6 md:py-8 print-page">
+    <div id="exam-sheet" class="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-12 exam-container transition-all">
+      
+      <!-- ==========================================
+           PAGE 1: HEADER, PART A, PART B 
+           ========================================== -->
+      <div id="print-page-1">
+        <!-- EXAM HEADER -->
+        <div class="border-b-4 border-double border-slate-800 pb-4 mb-6 text-center">
+          <div class="text-sm font-bold tracking-wider text-slate-600 uppercase">HKCCCU Logos Academy</div>
+          <div class="text-xs text-slate-500 mt-0.5">2025-2026 English Language - FS1 (Primary 2)</div>
+          <h2 class="text-xl font-black text-slate-900 mt-1 tracking-tight">Second Summative Assessment - Revision Paper</h2>
+          <div class="text-xs font-bold text-indigo-700 mt-0.5 uppercase tracking-wide">Section II: Usage (Total Marks: 50)</div>
+          
+          <!-- Student Info Fields -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 text-xs text-left max-w-2xl mx-auto font-semibold bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <div class="flex items-center gap-2">
+              <span>Name:</span>
+              <input type="text" placeholder="__________________" class="bg-transparent border-none focus:outline-none w-full font-handwriting text-indigo-600">
+            </div>
+            <div class="flex items-center gap-2">
+              <span>Class:</span>
+              <span class="text-slate-500 font-normal font-handwriting">FS1 ( <input type="text" placeholder="   " class="w-8 text-center bg-transparent focus:outline-none border-b border-dashed border-slate-400 font-handwriting text-indigo-600"> )</span>
+            </div>
+            <div class="flex items-center gap-2 col-span-1">
+              <span>Class No.:</span>
+              <input type="text" placeholder="_____" class="bg-transparent border-none focus:outline-none w-12 text-center font-handwriting text-indigo-600">
+            </div>
+            <div class="flex items-center justify-end text-rose-600 font-bold">
+              <span>Score: &nbsp;_____ / 50</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PART A: VERB TO BE AND VERB TO HAVE -->
+        <section class="mb-6">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">A</span>
+                Part A: Verb "to be" & Verb "to have"
+              </h3>
+              <p class="text-sm text-slate-500 ml-8">Fill in the blanks with correct forms (8 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">8 Marks</span>
+            </div>
+          </div>
+
+          <div class="ml-8 p-2.5 bg-indigo-50/50 rounded-xl border border-indigo-100/50 mb-3 no-print text-xs">
+            <span class="font-bold text-indigo-800">Word Bank:</span> 
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1.5 text-[11px]">is</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">am</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">are</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">isn't</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">aren't</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">has</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">have</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">hasn't</span>
+            <span class="font-mono bg-white px-1.5 py-0.5 rounded border shadow-sm ml-1 text-[11px]">haven't</span>
+          </div>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+            <p class="leading-relaxed text-slate-800 text-base md:text-lg" id="part-a-text">
+              <!-- Dynamic Injection -->
+            </p>
+          </div>
+        </section>
+
+        <!-- PART B: PRONOUNS AND POSSESSIVE ADJECTIVES -->
+        <section class="mb-2">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">B</span>
+                Part B: Subject, Object Pronouns & Possessive Adjectives
+              </h3>
+              <p class="text-sm text-slate-500 ml-8">Fill in the blanks with correct pronouns or possessive adjectives (10 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
+            </div>
+          </div>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+            <p class="leading-relaxed text-slate-800 text-base md:text-lg" id="part-b-text">
+              <!-- Dynamic Injection -->
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ==========================================
+           PAGE 2: PART C (Present Simple Tense)
+           ========================================== -->
+      <div id="print-page-2">
+        <section class="mb-2">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">C</span>
+                Part C: Present Simple Tense
+              </h3>
+              <p class="text-sm text-slate-500 ml-8" id="part-c-instruction">Read the letter. Fill in the blanks with correct verb forms (10 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
+            </div>
+          </div>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-5 shadow-sm font-handwriting border-2 border-dashed border-indigo-200">
+            <div class="text-right text-xs text-slate-500">Date: <span id="current-date">30th May 2026</span></div>
+            <div class="text-base font-bold mb-3" id="part-c-salutation">Dear Shirley,</div>
+            
+            <p class="leading-relaxed text-slate-800 text-base md:text-lg whitespace-pre-line" id="part-c-text">
+              <!-- Dynamic Injection -->
+            </p>
+
+            <div class="mt-4 text-sm" id="part-c-signoff">
+              Warm regards,<br>
+              <span class="font-bold">Betty</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ==========================================
+           PAGE 3: PART D (Present Continuous Tense)
+           ========================================== -->
+      <div id="print-page-3">
+        <section class="mb-2">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">D</span>
+                Part D: Present Continuous Tense
+              </h3>
+              <p class="text-sm text-slate-500 ml-8" id="part-d-instruction">Emily and Ada are talking now. Fill in the blanks with the correct form of verbs in brackets (10 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">10 Marks</span>
+            </div>
+          </div>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-3" id="part-d-dialogue">
+            <!-- Dynamic Injection -->
+          </div>
+        </section>
+      </div>
+
+      <!-- ==========================================
+           PAGE 4: PART E & END OF PAPER
+           ========================================== -->
+      <div id="print-page-4">
+        <section class="mb-2">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">E</span>
+                Part E: Vocabulary (School Life)
+              </h3>
+              <p class="text-sm text-slate-500 ml-8">Choose the correct words from the box below to complete the story (12 marks, 2 marks each).</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">12 Marks</span>
+            </div>
+          </div>
+
+          <!-- Vocabulary Pool Box (exactly 8 words, choose 6) -->
+          <div class="ml-8 border border-indigo-200 bg-indigo-50/30 rounded-xl p-3 mb-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center" id="vocab-bank">
+              <!-- Dynamic Injection -->
+            </div>
+          </div>
+
+          <div class="ml-8 bg-white border border-slate-100 rounded-xl p-5 shadow-sm">
+            <p class="leading-relaxed text-slate-800 text-base md:text-lg whitespace-pre-line" id="part-e-text">
+              <!-- Dynamic Injection -->
+            </p>
+          </div>
+        </section>
+
+        <!-- END OF PAPER FLAG (Always stays inside Page 4) -->
+        <div class="text-center mt-6 py-2 border-t border-b border-dashed border-slate-300">
+          <span class="font-bold text-slate-500 tracking-widest font-handwriting text-base uppercase">* * * End of Paper * * *</span>
+        </div>
+
+        <!-- EXAM FOOTER -->
+        <div class="hidden print:block text-center text-[10px] text-slate-400 mt-4 pt-2 border-t border-slate-100">
+          2025-26 English FS1 Usage Summative Assessment Revision Paper &copy; HKCCCU Logos Academy
+        </div>
+      </div>
+
+      <!-- ==========================================
+           PAGE 5: REFERENCE ANSWER SHEET (TEACHER KEY)
+           ========================================== -->
+      <div id="print-page-5" class="hidden print:block pt-4">
+        <div class="border-b-4 border-double border-slate-800 pb-3 mb-4 text-center">
+          <div class="text-xs font-bold tracking-wider text-slate-600 uppercase">HKCCCU Logos Academy</div>
+          <h2 class="text-lg font-black text-slate-900 mt-1 tracking-tight">Second Summative Assessment - Revision Paper</h2>
+          <div class="text-sm font-bold text-rose-600 mt-1 uppercase tracking-wide">Teacher's Reference Answer Key (教師參考答案頁)</div>
+        </div>
+
+        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200/80">
+          <p class="text-xs text-slate-500 mb-4 italic">Note: These answers dynamically correspond to the current randomized question sets (Sets 1 to 5).</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <!-- Left Column: Parts A, B & C -->
+            <div class="space-y-4">
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part A: Verb "to be" & "to have" (8 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-a-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-a-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-a-3" class="text-rose-600 font-bold">---</span></li>
+                  <li>(4) &nbsp;<span id="ans-a-4" class="text-rose-600 font-bold">---</span></li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part B: Pronouns & Possessives (10 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-b-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-b-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-b-3" class="text-rose-600 font-bold">---</span></li>
+                  <li>(4) &nbsp;<span id="ans-b-4" class="text-rose-600 font-bold">---</span></li>
+                  <li>(5) &nbsp;<span id="ans-b-5" class="text-rose-600 font-bold">---</span></li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part C: Present Simple Tense (10 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-c-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-c-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-c-3" class="text-rose-600 font-bold">---</span></li>
+                  <li>(4) &nbsp;<span id="ans-c-4" class="text-rose-600 font-bold">---</span></li>
+                  <li>(5) &nbsp;<span id="ans-c-5" class="text-rose-600 font-bold">---</span> <span class="text-xs text-slate-400 font-normal font-sans">(or does not have)</span></li>
+                </ol>
+              </div>
+            </div>
+
+            <!-- Right Column: Parts D & E -->
+            <div class="space-y-4">
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part D: Present Continuous Tense (10 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-d-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-d-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-d-3" class="text-rose-600 font-bold">---</span> <span class="text-xs text-slate-400 font-normal font-sans">(or is not running/writing/drawing/watching)</span></li>
+                  <li>(4) &nbsp;<span id="ans-d-4" class="text-rose-600 font-bold">---</span></li>
+                  <li>(5) &nbsp;<span id="ans-d-5" class="text-rose-600 font-bold">---</span></li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 class="font-black text-indigo-900 border-b border-indigo-100 pb-1 mb-2">Part E: Vocabulary - School Life (12 Marks)</h4>
+                <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
+                  <li>(1) &nbsp;<span id="ans-e-1" class="text-rose-600 font-bold">---</span></li>
+                  <li>(2) &nbsp;<span id="ans-e-2" class="text-rose-600 font-bold">---</span></li>
+                  <li>(3) &nbsp;<span id="ans-e-3" class="text-rose-600 font-bold">---</span></li>
+                  <li>(4) &nbsp;<span id="ans-e-4" class="text-rose-600 font-bold">---</span></li>
+                  <li>(5) &nbsp;<span id="ans-e-5" class="text-rose-600 font-bold">---</span></li>
+                  <li>(6) &nbsp;<span id="ans-e-6" class="text-rose-600 font-bold">---</span></li>
+                </ol>
+              </div>
+
+              <div class="pt-4 border-t border-slate-200 text-xs text-slate-500">
+                <p class="font-bold">Summary of Key Grammar Rules Tested:</p>
+                <ul class="list-disc list-inside space-y-0.5 mt-1 text-[11px]">
+                  <li>Part A: Singular/plural agreement with "be" & "have got".</li>
+                  <li>Part B: Distinguishing subject/object pronouns & possessives (+noun).</li>
+                  <li>Part C: 3rd person singular -s/-es/-ies endings.</li>
+                  <li>Part D: Short vowel consonant doubling, -ie to -y, and unstressed syllables (-ing).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hidden print:block text-center text-[10px] text-slate-400 mt-6 pt-2 border-t border-slate-100">
+          2025-26 English FS1 Usage Answer Key &copy; HKCCCU Logos Academy
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Interactive Correction & Explanations Panel (Only visible in Interactive mode after check answers) -->
+  <div id="evaluation-panel" class="no-print hidden max-w-4xl mx-auto px-4 mb-12">
+    <div class="bg-white rounded-3xl p-6 shadow-xl border border-indigo-100">
+      <h3 class="text-lg font-extrabold text-slate-950 flex items-center gap-2 mb-4">
+        📚 Study Notes & Grammatical Hints (語法小提示)
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm" id="feedback-notes-container">
+        <!-- Explanations dynamically loaded here based on errors -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------------------------------------
+    // STATE & CONFIG
+    // -----------------------------------------------------------
+    let isAnswersVisible = false;
+    let isInteractiveMode = true;
+
+    // Selected indices for current generation (0 to 4 for each part)
+    let currentIndices = {
+      a: 0,
+      b: 0,
+      c: 0,
+      d: 0,
+      e: 0
+    };
+
+    // Database containing exactly 5 sets of completely different paragraph scenarios for ALL PARTS!
+    const EXAM_DATABASE = {
+      // PART A: Verb "to be" and "to have" (4 targets: 8 marks)
+      // Standard targets schema: [0]: is, [1]: have, [2]: is, [3]: hasn't
+      partA: [
+        {
+          answers: ["is", "have", "is", "hasn't"],
+          text: `My family and I are at the zoo today. It (1) [A-1] a sunny morning. We (2) [A-2] got some delicious bananas for the monkeys. My little brother, Toby, (3) [A-3] very excited, but he (4) [A-4] got his cap because he left it in the car. Luckily, my parents have an extra umbrella!`
+        },
+        {
+          answers: ["is", "have", "is", "hasn't"],
+          text: `Welcome to my cozy bedroom! This room (1) [A-1] very tidy. My sister and I (2) [A-2] got a big white toy box. Whiskers, my sleepy orange cat, (3) [A-3] fast asleep on the rug. He (4) [A-4] got any energy today because he was playing all night. He is so lazy!`
+        },
+        {
+          answers: ["is", "have", "is", "hasn't"],
+          text: `Everyone (1) [A-1] busy in our warm kitchen. My grandparents (2) [A-2] got lots of fresh red apples to make sweet pies. The oven (3) [A-3] preheated and hot, but my sister (4) [A-4] got her cooking apron ready yet. She is still washing her hands under the tap.`
+        },
+        {
+          answers: ["is", "have", "is", "hasn't"],
+          text: `Our after-school art club (1) [A-1] super interesting. We (2) [A-2] got colorful clay and shiny stickers. The teacher (3) [A-3] helpful, but Leo (4) [A-4] got his pencil case with him. He needs to borrow some crayons from his classmates.`
+        },
+        {
+          answers: ["is", "have", "is", "hasn't"],
+          text: `The weather in Hong Kong (1) [A-1] perfectly cool today. My friendly parents (2) [A-2] got a big waterproof picnic blanket for us. The grass (3) [A-3] safe and green, but my baby brother (4) [A-4] got his shoes on! He loves walking barefoot on the soft grass.`
+        }
+      ],
+
+      // PART B: Subject/Object Pronouns & Possessive Adjectives (5 targets: 10 marks)
+      // Standard target answers schema: [0]: Possessive/Subject, [1]: us, [2]: it, [3]: him/her, [4]: our
+      partB: [
+        {
+          answers: ["Its", "us", "it", "him", "our"],
+          text: `Toby has a cute dog. (1) [B-1] name is Buddy. Toby and I love Buddy very much. Toby's friendly parents often take (2) [B-2] to the grassy park to play. Yesterday, Toby threw a small red ball, and Buddy quickly ran after (3) [B-3]. When Buddy brought the ball back, Toby patted (4) [B-4] gently on the head. We always enjoy (5) [B-5] lovely weekends together.`
+        },
+        {
+          answers: ["His", "us", "him", "it", "our"],
+          text: `I have a polite classmate. (1) [B-1] name is Lucas. The teacher introduced Lucas to (2) [B-2] during the morning assembly today. Lucas showed me a beautiful drawing of a rocket, and I praised (3) [B-3] for the great work. Lucas likes the drawing so much that he keeps (4) [B-4] carefully in a blue folder. We will definitely invite Lucas to join (5) [B-5] fun game tomorrow.`
+        },
+        {
+          answers: ["Her", "us", "it", "her", "our"],
+          text: `My sweet sister and I love grandma. (1) [B-1] blueberry muffins are absolutely delicious. Grandma always teaches (2) [B-2] how to bake sweet treats on Saturdays. Yesterday, Grandma gave my sister a fresh strawberry, and my sister ate (3) [B-3] in one bite. Then we hugged (4) [B-4] tightly to say thank you. We really treasure (5) [B-5] warm family baking days.`
+        },
+        {
+          answers: ["Their", "us", "it", "him", "our"],
+          text: `Look at those wonderful parrots! (1) [B-1] feathers are incredibly colorful. The kind zookeeper shows (2) [B-2] how they fly up high. A little green parrot landed on my brother's shoulder, so I fed (3) [B-3] some seeds. My brother wanted to keep the parrot, but the zookeeper stopped (4) [B-4] because birds should live freely. We enjoyed (5) [B-5] educational trip to the park.`
+        },
+        {
+          answers: ["Her", "her", "it", "us", "our"],
+          text: `Sally is crying near the school gate. (1) [B-1] favorite stripy pencil case is missing. Sally's caring friends are helping (2) [B-2] search the classrooms. Finally, we found the pencil case under a teacher's desk and returned (3) [B-3] to Sally. Sally smiled happily and thanked (4) [B-4] for the great help. We all love (5) [B-5] friendly and helpful school community.`
+        }
+      ],
+
+      // PART C: Present Simple (5 targets: 10 marks)
+      partC: [
+        {
+          sender: "Betty",
+          receiver: "Shirley",
+          instruction: "Read the letter from Betty to Shirley. Fill in the blanks with correct verb forms.",
+          answers: ["go", "likes", "have", "sings", "doesn't have"],
+          text: `How are you? I hope you are having fun at school!
+
+          Every Sunday, my sweet family and I (1) [C-1] (go) to the countryside. My creative father (2) [C-2] (like) taking photos of wild birds. We usually (3) [C-3] (have) a delicious picnic under a huge oak tree.
+
+          My adorable little sister, Amy, always (4) [C-4] (sing) cheerful songs while we eat. She is so little that she (5) [C-5] (not have) any worries at all!
+
+          Write back to me soon!`
+        },
+        {
+          sender: "Jack",
+          receiver: "Tom",
+          instruction: "Read the letter from Jack to Tom. Fill in the blanks with correct verb forms.",
+          answers: ["wake", "cleans", "have", "jumps", "doesn't like"],
+          text: `How is your week going? Let me tell you about my morning routine!
+
+          Every morning, my brothers and I (1) [C-1] (wake) up early at six o'clock. My hardworking mother quickly (2) [C-2] (clean) the kitchen while we get dressed. Then, we (3) [C-3] (have) a healthy breakfast of milk and cereal.
+
+          Our pet dog, Sparky, always (4) [C-4] (jump) around my feet because he wants food. However, our lazy cat (5) [C-5] (not like) to get up before noon!
+
+          What do you do in the morning?`
+        },
+        {
+          sender: "Ada",
+          receiver: "Joy",
+          instruction: "Read the letter from Ada to Joy. Fill in the blanks with correct verb forms.",
+          answers: ["visit", "plays", "eat", "likes", "doesn't write"],
+          text: `I hope you are doing well! Here is some news from my weekend.
+
+          On Saturdays, my lovely cousins always (1) [C-1] (visit) my home. My older sister (2) [C-2] (play) board games with them in the living room. At noon, we all (3) [C-3] (eat) yummy ham and cheese sandwiches.
+
+          My cousin Toby (4) [C-4] (like) reading comic books on our big sofa. He is very quiet, but he (5) [C-5] (not write) letters often because he is too busy with his homework!
+
+          Do you visit your cousins too?`
+        },
+        {
+          sender: "Toby",
+          receiver: "Leo",
+          instruction: "Read the letter from Toby to Leo. Fill in the blanks with correct verb forms.",
+          answers: ["stay", "goes", "have", "bakes", "doesn't watch"],
+          text: `Greetings from Grandma's house! I am having a wonderful holiday here.
+
+          During long school holidays, my parents and I (1) [C-1] (stay) at Grandma's house. My grandfather (2) [C-2] (go) for a brisk walk every afternoon. They (3) [C-3] (have) a beautiful garden full of sweet-smelling roses.
+
+          My grandmother (4) [C-4] (bake) chocolate chip cookies for us every afternoon. She is very healthy because she (5) [C-5] (not watch) TV. Instead, she prefers reading books!
+
+          Tell me about your holidays!`
+        },
+        {
+          sender: "Emily",
+          receiver: "Fiona",
+          instruction: "Read the letter from Emily to Fiona. Fill in the blanks with correct verb forms.",
+          answers: ["walk", "runs", "have", "sings", "doesn't like"],
+          text: `Hello! I am so happy to write this short letter to you.
+
+          After school, my best classmates and I (1) [C-1] (walk) to the nearby park. My energetic brother, Leo, always (2) [C-2] (run) around the grassy field to catch dragonflies. We (3) [C-3] (have) a wonderful time together.
+
+          My classmate, Lily, (4) [C-4] (sing) beautiful nursery rhymes under the shade. The park is wonderful, but my brother (5) [C-5] (not like) hot rainy days because he cannot play outside.
+
+          Let's go to the park together next week!`
+        }
+      ],
+
+      // PART D: Present Continuous (Emily and Ada dialogue: 5 targets: 10 marks)
+      partD: [
+        {
+          scenario: "Emily and Ada are in the park now.",
+          answers: ["is climbing", "are running", "isn't running", "is lying", "is listening"],
+          dialogue: [
+            { speaker: "Emily", text: `Look, Ada! The morning sun is shining beautifully. What is that little boy doing over there near the slide?` },
+            { speaker: "Ada", text: `Oh! He (1) [D-1] (climb) the tall oak tree. Oh dear, I hope he is careful!` },
+            { speaker: "Emily", text: `Yes! And look at those playful dogs on the grass. They (2) [D-2] (run) quickly after a yellow butterfly.` },
+            { speaker: "Ada", text: `Wait, where is Sally? Is she running with the dogs too?` },
+            { speaker: "Emily", text: `No, she (3) [D-3] (not run) now. She (4) [D-4] (lie) peacefully on the cool grass under the shade. She (5) [D-5] (listen) to her favorite music on the radio.` }
+          ]
+        },
+        {
+          scenario: "Emily and Ada are in the school playground during recess.",
+          answers: ["is sitting", "are playing", "isn't writing", "is sleeping", "is tying"],
+          dialogue: [
+            { speaker: "Emily", text: `Ada, recess is so much fun today! Everyone is busy. Look at our teacher Miss Chan.` },
+            { speaker: "Ada", text: `Yes, she (1) [D-1] (sit) on the wooden bench watching the kids. Over there, the boys (2) [D-2] (play) basketball.` },
+            { speaker: "Emily", text: `What about Toby? Is he doing his English homework?` },
+            { speaker: "Ada", text: `No, he (3) [D-3] (not write) anything. He (4) [D-4] (sleep) with his head on the desk because he is tired. And look at Leo, he (5) [D-5] (tie) his shoelaces near the door.` }
+          ]
+        },
+        {
+          scenario: "Emily and Ada are in the classroom during an art lesson.",
+          answers: ["is cutting", "are drawing", "isn't drawing", "is writing", "is tying"],
+          dialogue: [
+            { speaker: "Emily", text: `This art room is so colorful! Look at what Sally is doing with her scissors.` },
+            { speaker: "Ada", text: `Wow, she (1) [D-1] (cut) the stripy paper to make a fish! And the boys at the back (2) [D-2] (draw) huge dinosaurs.` },
+            { speaker: "Emily", text: `Is Ken drawing a dinosaur too?` },
+            { speaker: "Ada", text: `No, he (3) [D-3] (not draw) at all. He (4) [D-4] (write) a thank-you letter to his mom. Oh, and our teacher (5) [D-5] (tie) a ribbon around a big gift box.` }
+          ]
+        },
+        {
+          scenario: "Emily and Ada are watching the school Sports Day.",
+          answers: ["is winning", "are cheering", "isn't running", "is sitting", "is listening"],
+          dialogue: [
+            { speaker: "Emily", text: `Ada! The 100-meter race is starting! Look at Leo go!` },
+            { speaker: "Ada", text: `Oh my! He is so fast. He (1) [D-1] (win) the race! All the teachers (2) [D-2] (cheer) for him loudly!` },
+            { speaker: "Emily", text: `Is Toby in the race too?` },
+            { speaker: "Ada", text: `No, Toby (3) [D-3] (not run) today because his leg hurts. He (4) [D-4] (sit) quietly on the bench. He (5) [D-5] (listen) to the principal's encouraging words.` }
+          ]
+        },
+        {
+          scenario: "Emily and Ada are at home on a rainy Saturday.",
+          answers: ["is baking", "are sitting", "isn't watching", "is lying", "is listening"],
+          dialogue: [
+            { speaker: "Emily", text: `The rain is so heavy outside, Ada! But it is cozy inside. Smell that!` },
+            { speaker: "Ada", text: `Yum! Mom (1) [D-1] (bake) apple pies in the kitchen. My brothers (2) [D-2] (sit) near the warm fireplace.` },
+            { speaker: "Emily", text: `Is your dog watching the rain outside too?` },
+            { speaker: "Ada", text: `No, he (3) [D-3] (not watch) the window. He (4) [D-4] (lie) comfortably under my desk. He (5) [D-5] (listen) to the soothing sound of the rain.` }
+          ]
+        }
+      ],
+
+      // PART E: Vocabulary (School Life theme: 6 targets: 12 marks)
+      partE: [
+        {
+          words: ["fond", "puzzled", "afterwards", "helmet", "gymnastics", "camera", "computer", "parcel"],
+          answers: ["fond", "puzzled", "afterwards", "helmet", "gymnastics", "camera"],
+          text: `Today is our special school activity day! In the morning, we happily go to the IT room because all of us are very (1) [E-1] of coding games. Our friendly teacher shows us a cool robotic car, but some students look (2) [E-2] because we do not know how to start it.
+
+          (3) [E-3], we go out to the playground for our physical education lesson. My classmate wears a blue (4) [E-4] because he is practicing riding a bike. My absolute favorite activity is doing (5) [E-5] on the soft mats with my friends. At the end of the day, our teacher takes a beautiful class photo using a new digital (6) [E-6]. What a wonderful day of school life!`
+        },
+        {
+          words: ["pavement", "traffic light", "policeman", "lorry", "knocked", "afterwards", "restaurant", "stripy"],
+          answers: ["pavement", "traffic light", "policeman", "lorry", "knocked", "afterwards"],
+          text: `Every morning, my friends and I walk safely to school. We always keep to the left side of the (1) [E-1] to stay away from the road. When we reach the crosswalk, we wait patiently for the (2) [E-2] to turn green. A friendly (3) [E-3] on duty smiles at us and stops the vehicles.
+
+          Suddenly, a huge yellow (4) [E-4] speeds past! Oops, a loose box fell off the truck and (5) [E-5] against a signpost. (6) [E-6], we picked up the small box and handed it to the officer. Road safety is extremely important for school kids!`
+        },
+        {
+          words: ["restaurant", "seat belt", "computer", "puzzled", "sorted", "stripy", "gymnastics", "asleep"],
+          answers: ["restaurant", "seat belt", "computer", "puzzled", "sorted", "stripy"],
+          text: `After a busy day at school, my family decided to celebrate my good test results at a cozy (1) [E-1]. In the car, my mother reminds me to buckle up my (2) [E-2] for safety. While waiting for our dinner, my brother shows me an educational game on his (3) [E-3]. 
+
+          At first, we felt (4) [E-4] by a difficult level, but our father quickly (5) [E-5] out the math problem for us. For dinner, I happily wore my lucky (6) [E-6] shirt. School life is fun, but family dinners make it even better!`
+        },
+        {
+          words: ["parcel", "computer", "sorted", "puzzled", "building", "asleep", "stride", "helmet"],
+          answers: ["parcel", "computer", "sorted", "puzzled", "building", "asleep"],
+          text: `This morning, the mailman delivered a heavy (1) [E-1] to our school office. Our principal typed the receipt on the desk (2) [E-2] while we watched. The new library books inside were quickly (3) [E-3] and put onto the shelves by the student helpers. 
+
+          One younger student looked (4) [E-4] because he couldn't find his classroom. We pointed toward the tall red (5) [E-5] across the playground. In the school garden nearby, we saw a little squirrel fast (6) [E-6] in the tree. We walked quietly so we wouldn't wake it up!`
+        },
+        {
+          words: ["gymnastics", "helmet", "stride", "pavement", "policeman", "knocked", "camera", "lorry"],
+          answers: ["gymnastics", "helmet", "stride", "pavement", "policeman", "knocked"],
+          text: `We had an amazing PE lesson today! First, we did some safe (1) [E-1] routines. Our teacher made us wear a hard plastic (2) [E-2] for protection during the climbing test. We learned to walk with a confident (3) [E-3] across the balance beams.
+
+          After the lesson, we walked along the clean school (4) [E-4] to go home. We waved to a kind (5) [E-5] who was patrolling near the school entrance. Suddenly, a playful dog ran past and (6) [E-6] over some water bottles. We laughed and helped tidy up the bottles before going home.`
+        }
+      ]
+    };
+
+    // Sound effects generator (Web Audio API)
+    function playSound(type) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (type === 'correct') {
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(523.25, ctx.currentTime); 
+          osc1.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.3);
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(659.25, ctx.currentTime);
+          osc2.frequency.exponentialRampToValueAtTime(1318.51, ctx.currentTime + 0.3);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+          osc1.start();
+          osc2.start();
+          osc1.stop(ctx.currentTime + 0.4);
+          osc2.stop(ctx.currentTime + 0.4);
+        } else if (type === 'wrong') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        }
+      } catch (e) {}
+    }
+
+    // Shuffle helper
+    function shuffleArray(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
+    // -----------------------------------------------------------
+    // EXAM GENERATION ENGINE
+    // -----------------------------------------------------------
+    function regenerateExam() {
+      // Pick 5 completely independent random indices (0-4)
+      currentIndices.a = Math.floor(Math.random() * 5);
+      currentIndices.b = Math.floor(Math.random() * 5);
+      currentIndices.c = Math.floor(Math.random() * 5);
+      currentIndices.d = Math.floor(Math.random() * 5);
+      currentIndices.e = Math.floor(Math.random() * 5);
+
+      renderExamSheet();
+      resetInteractiveForm();
+    }
+
+    function renderExamSheet() {
+      // Part A
+      const dataA = EXAM_DATABASE.partA[currentIndices.a];
+      let htmlA = dataA.text;
+      for (let i = 0; i < 4; i++) {
+        // Keeps placeholder clean of any target text to ensure writing comfort on printouts
+        htmlA = htmlA.replace(`[A-${i+1}]`, `<input data-part="a" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
+        // Sync static Key (Page 5)
+        document.getElementById(`ans-a-${i+1}`).innerText = dataA.answers[i];
+      }
+      document.getElementById('part-a-text').innerHTML = htmlA;
+
+      // Part B
+      const dataB = EXAM_DATABASE.partB[currentIndices.b];
+      let htmlB = dataB.text;
+      for (let i = 0; i < 5; i++) {
+        htmlB = htmlB.replace(`[B-${i+1}]`, `<input data-part="b" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
+        // Sync static Key (Page 5)
+        document.getElementById(`ans-b-${i+1}`).innerText = dataB.answers[i];
+      }
+      document.getElementById('part-b-text').innerHTML = htmlB;
+
+      // Part C
+      const dataC = EXAM_DATABASE.partC[currentIndices.c];
+      document.getElementById('part-c-instruction').innerText = dataC.instruction;
+      document.getElementById('part-c-salutation').innerText = `Dear ${dataC.receiver},`;
+      document.getElementById('current-date').innerText = "30th May 2026";
+      
+      let htmlC = dataC.text;
+      const cHints = ["go", "like", "have", "sing", "not have", "wake", "clean", "have", "jump", "not like", "visit", "play", "eat", "like", "not write", "stay", "go", "have", "bake", "not watch", "walk", "run", "have", "sing", "not like"];
+      const baseVerbs = cHints.slice(currentIndices.c * 5, (currentIndices.c + 1) * 5);
+      for (let i = 0; i < 5; i++) {
+        // Replaced and appended hints outside the blank space for clean print view
+        htmlC = htmlC.replace(`[C-${i+1}]`, `<input data-part="c" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" _________________ ">`);
+        // Sync static Key (Page 5)
+        document.getElementById(`ans-c-${i+1}`).innerText = dataC.answers[i];
+      }
+      document.getElementById('part-c-text').innerHTML = htmlC;
+      document.getElementById('part-c-signoff').innerHTML = `Warm regards,<br><span class="font-bold">${dataC.sender}</span>`;
+
+      // Part D
+      const dataD = EXAM_DATABASE.partD[currentIndices.d];
+      document.getElementById('part-d-instruction').innerText = `${dataD.scenario} Fill in the blanks with the correct form of verbs in brackets.`;
+      
+      const dContainer = document.getElementById('part-d-dialogue');
+      dContainer.innerHTML = '';
+      
+      const dHints = ["climb", "run", "not run", "lie", "listen", "sit", "play", "not write", "sleep", "tie", "cut", "draw", "not draw", "write", "tie", "win", "cheer", "not run", "sit", "listen", "bake", "sit", "not watch", "lie", "listen"];
+      const baseDVerbs = dHints.slice(currentIndices.d * 5, (currentIndices.d + 1) * 5);
+
+      dataD.dialogue.forEach((line, idx) => {
+        const row = document.createElement('div');
+        row.className = "flex gap-2 text-base md:text-lg leading-relaxed mb-1";
+        
+        let processedLineText = line.text;
+        for (let i = 0; i < 5; i++) {
+          processedLineText = processedLineText.replace(`[D-${i+1}]`, `<input data-part="d" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" _________________ ">`);
+          // Sync static Key (Page 5)
+          document.getElementById(`ans-d-${i+1}`).innerText = dataD.answers[i];
+        }
+
+        row.innerHTML = `<span class="font-black text-slate-900 min-w-[75px]">${line.speaker}:</span> <span class="text-slate-800 flex-1">${processedLineText}</span>`;
+        dContainer.appendChild(row);
+      });
+
+      // Part E
+      const dataE = EXAM_DATABASE.partE[currentIndices.e];
+      const shuffledBank = shuffleArray(dataE.words);
+      const vocabBankElement = document.getElementById('vocab-bank');
+      vocabBankElement.innerHTML = '';
+      shuffledBank.forEach(word => {
+        const item = document.createElement('div');
+        item.className = "bg-white border border-indigo-100 py-1 px-3 rounded-xl text-indigo-900 font-bold font-handwriting text-sm md:text-base shadow-sm";
+        item.innerText = word;
+        vocabBankElement.appendChild(item);
+      });
+
+      let htmlE = dataE.text;
+      for (let i = 0; i < 6; i++) {
+        htmlE = htmlE.replace(`[E-${i+1}]`, `<input data-part="e" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
+        // Sync static Key (Page 5)
+        document.getElementById(`ans-e-${i+1}`).innerText = dataE.answers[i];
+      }
+      document.getElementById('part-e-text').innerHTML = htmlE;
+
+      applyInputsState();
+    }
+
+    // -----------------------------------------------------------
+    // INTERACTIVE MODES & ANSWERS DISPLAY
+    // -----------------------------------------------------------
+    function switchMode(mode) {
+      isInteractiveMode = (mode === 'interactive');
+      
+      const btnInt = document.getElementById('btn-mode-interactive');
+      const btnPrt = document.getElementById('btn-mode-print');
+      const scorePanel = document.getElementById('interactive-score-panel');
+      const evalPanel = document.getElementById('evaluation-panel');
+      const toggleAnsBtn = document.getElementById('btn-toggle-answers');
+      const pageFive = document.getElementById('print-page-5');
+
+      if (isInteractiveMode) {
+        btnInt.className = "px-3 py-1.5 rounded-lg transition-all bg-white text-indigo-600 shadow-sm";
+        btnPrt.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-indigo-600";
+        scorePanel.classList.remove('hidden');
+        toggleAnsBtn.classList.add('hidden');
+        pageFive.classList.add('hidden'); // Hide key in student interactive mode
+        
+        document.querySelectorAll('#exam-sheet input[data-part]').forEach(input => {
+          input.removeAttribute('disabled');
+          input.classList.remove('text-rose-600', 'font-black');
+          input.classList.add('text-indigo-600');
+        });
+      } else {
+        btnPrt.className = "px-3 py-1.5 rounded-lg transition-all bg-white text-indigo-600 shadow-sm";
+        btnInt.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-indigo-600";
+        scorePanel.classList.add('hidden');
+        evalPanel.classList.add('hidden');
+        toggleAnsBtn.classList.remove('hidden');
+        pageFive.classList.remove('hidden'); // Show key at the bottom of the page in print preview
+        
+        isAnswersVisible = false;
+        toggleAnsBtn.innerText = "🔑 顯示答案版";
+        toggleAnsBtn.className = "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-sm font-semibold transition-all";
+        clearAnswers();
+      }
+    }
+
+    function toggleAnswers() {
+      isAnswersVisible = !isAnswersVisible;
+      const btn = document.getElementById('btn-toggle-answers');
+      
+      if (isAnswersVisible) {
+        btn.innerText = "✏️ 切換學生版";
+        btn.classList.remove('bg-emerald-50', 'text-emerald-700');
+        btn.classList.add('bg-rose-500', 'text-white', 'hover:bg-rose-600');
+        fillAnswers();
+      } else {
+        btn.innerText = "🔑 顯示答案版";
+        btn.classList.remove('bg-rose-500', 'text-white', 'hover:bg-rose-600');
+        btn.classList.add('bg-emerald-50', 'text-emerald-700', 'hover:bg-emerald-100');
+        clearAnswers();
+      }
+    }
+
+    function fillAnswers() {
+      const allInputs = document.querySelectorAll('#exam-sheet input[data-part]');
+      allInputs.forEach(input => {
+        const part = input.getAttribute('data-part');
+        const idx = parseInt(input.getAttribute('data-idx'));
+        let answer = EXAM_DATABASE[`part${part.toUpperCase()}`][currentIndices[part]].answers[idx];
+        
+        input.value = answer;
+        input.classList.add('text-rose-600', 'font-black');
+        input.classList.remove('text-indigo-600');
+        input.setAttribute('disabled', 'true');
+      });
+    }
+
+    function clearAnswers() {
+      const allInputs = document.querySelectorAll('#exam-sheet input[data-part]');
+      allInputs.forEach(input => {
+        input.value = '';
+        input.classList.remove('text-rose-600', 'font-black');
+        input.classList.add('text-indigo-600');
+        input.removeAttribute('disabled');
+      });
+    }
+
+    function checkInteractiveAnswers() {
+      const allInputs = document.querySelectorAll('#exam-sheet input[data-part]');
+      let correctCount = 0;
+      let errorsList = [];
+
+      allInputs.forEach(input => {
+        const part = input.getAttribute('data-part');
+        const idx = parseInt(input.getAttribute('data-idx'));
+        const studentAns = input.value.trim().toLowerCase();
+        
+        const configAnswers = EXAM_DATABASE[`part${part.toUpperCase()}`][currentIndices[part]].answers;
+        let correctAnswers = [configAnswers[idx].toLowerCase()];
+
+        if (configAnswers[idx].toLowerCase() === "doesn't have") {
+          correctAnswers.push("does not have");
+        } else if (configAnswers[idx].toLowerCase() === "isn't running") {
+          correctAnswers.push("is not running");
+        } else if (configAnswers[idx].toLowerCase() === "isn't writing") {
+          correctAnswers.push("is not writing");
+        } else if (configAnswers[idx].toLowerCase() === "isn't drawing") {
+          correctAnswers.push("is not drawing");
+        } else if (configAnswers[idx].toLowerCase() === "isn't watching") {
+          correctAnswers.push("is not watching");
+        }
+
+        const isCorrect = correctAnswers.includes(studentAns);
+
+        if (isCorrect) {
+          correctCount++;
+          input.className = "input-blank inline-block text-center border-b-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-bold font-handwriting rounded px-1";
+        } else {
+          input.className = "input-blank inline-block text-center border-b-2 border-rose-500 bg-rose-50 text-rose-700 font-bold font-handwriting rounded px-1";
+          errorsList.push({ part, idx, correct: configAnswers[idx], student: input.value });
+        }
+      });
+
+      const finalScore = correctCount * 2;
+      document.getElementById('score-text').innerText = `${finalScore} / 50`;
+
+      if (finalScore === 50) {
+        playSound('correct');
+      } else {
+        playSound('wrong');
+      }
+
+      renderFeedbackNotes(errorsList);
+    }
+
+    function renderFeedbackNotes(errors) {
+      const container = document.getElementById('feedback-notes-container');
+      const panel = document.getElementById('evaluation-panel');
+      
+      container.innerHTML = '';
+      
+      if (errors.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full p-6 text-center bg-emerald-50 rounded-2xl border border-emerald-100">
+            <p class="text-emerald-800 font-bold text-lg">🎉 Perfect Score! Excellent Grammar Skills!</p>
+            <p class="text-emerald-600 text-xs mt-1">完美滿分！你已經徹底掌握了 Verb to be / to have, Pronouns 與 Present Simple / Present Continuous 的所有考點！</p>
+          </div>
+        `;
+        panel.classList.remove('hidden');
+        return;
+      }
+
+      const feedbackRules = {
+        'a': { title: "Verb 'to be' & 'to have'", note: "<b>單複數配合：</b><br>1. 單數主語（It / My brother / The kitchen）配合 <b>is / has</b>。<br>2. 複數主語（We / My parents / My sister and I）配合 <b>are / have</b>。<br>3. 'Have got' / 'Has got' 用於表達「擁有」。其否定句為 <b>haven't got / hasn't got</b>。" },
+        'b': { title: "Pronouns & Possessives", note: "<b>代詞三格：</b><br>1. <b>主格</b>（He, She, They, We）在動詞前作主語。<br>2. <b>賓格</b>（him, her, us, them, it）在動詞或介詞後（ran after <b>it</b>, take <b>us</b>, returned <b>it</b>）。<br>3. <b>所有格形容詞</b>（His, Her, Their, Our, Its）後面必須緊跟名詞（例如：<b>Its</b> name, <b>our</b> weekend, <b>Her</b> muffins）。" },
+        'c': { title: "Present Simple", note: "<b>日常規律與事實：</b><br>1. 當主語是單數第三人稱（My father, My sister, Toby）時，動詞必須加上 <b>-s / -es / -ies</b>（例如：likes, sings, cleans, goes, bakes）。<br>2. <b>複數主語</b>或第一人稱（I, We, My family and I）時，動詞保留原形。<br>3. 否定式：單數用 <b>doesn't + 動詞原形</b>（例如：doesn't have），複數用 <b>don't</b>。" },
+        'd': { title: "Present Continuous (-ing) 規則", note: "<b>現在進行時規則重溫：</b><br>1. <b>雙寫字尾 + ing</b>（短元音+單輔音）：<i>climbing</i> 不雙寫；但 <i>running, sitting, cutting, winning</i> 需要雙寫尾字母。<br>2. <b>去 e 加 ing</b>：<i>writing, baking</i> 等去字尾 e。<br>3. <b>ie 變 y + ing</b>：<i>lying, tying, dying</i> 必須轉化為 y 加 -ing。<br>4. <b>首音節重音不雙寫</b>：<i>listening</i> 的重音在前面，因此直接加 -ing！" },
+        'e': { title: "Vocabulary Context", note: "<b>校園生活生字意境：</b><br>1. <b>fond of</b>：非常喜愛。<br>2. <b>puzzled</b>：困惑、不解的。<br>3. <b>afterwards</b>：在那之後 / 隨後。<br>4. <b>helmet</b>：防護頭盔（騎單車或體育課安全防護用）。<br>5. <b>gymnastics</b>：體操運動。<br>6. <b>pavement</b>：人行道。<br>7. <b>traffic light</b>：紅綠燈。<br>8. <b>policeman</b>：警員。" }
+      };
+
+      const triggeredParts = [...new Set(errors.map(e => e.part))];
+
+      triggeredParts.forEach(part => {
+        const card = document.createElement('div');
+        card.className = "bg-amber-50/50 p-4 rounded-2xl border border-amber-200/60 shadow-sm";
+        card.innerHTML = `
+          <h4 class="font-black text-amber-900 flex items-center gap-2 mb-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            ${feedbackRules[part].title}
+          </h4>
+          <p class="text-slate-700 leading-relaxed text-xs">${feedbackRules[part].note}</p>
+        `;
+        container.appendChild(card);
+      });
+
+      panel.classList.remove('hidden');
+    }
+
+    // 🔄 Reset form
+    function resetInteractiveForm() {
+      clearAnswers();
+      document.getElementById('score-text').innerText = `-- / 50`;
+      document.getElementById('evaluation-panel').classList.add('hidden');
+      applyInputsState();
+    }
+
+    // Apply strict width classes for dynamic placeholders
+    function applyInputsState() {
+      document.querySelectorAll('#exam-sheet input[data-part]').forEach(input => {
+        const isLarge = input.placeholder.includes('climb') || input.placeholder.includes('run') || input.placeholder.includes('write') || input.placeholder.includes('draw') || input.placeholder.includes('sing') || input.placeholder.includes('have') || input.placeholder.includes('play') || input.placeholder.includes('not') || input.placeholder.includes('____');
+        input.className = `${isLarge ? 'input-blank-large' : 'input-blank'} inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting`;
+      });
+    }
+
+    // Print wrapper
+    function triggerPrint() {
+      const currentMode = isInteractiveMode;
+      if (currentMode) {
+        switchMode('print');
+      }
+      
+      // Toggle CSS flags depending on whether we want to print completed answers or blank sheet
+      if (isAnswersVisible) {
+        document.body.classList.add('print-answers-enabled');
+        document.body.classList.remove('print-answers-disabled');
+      } else {
+        document.body.classList.add('print-answers-disabled');
+        document.body.classList.remove('print-answers-enabled');
+      }
+      
+      setTimeout(() => {
+        window.print();
+        if (currentMode) {
+          setTimeout(() => switchMode('interactive'), 500);
+        }
+      }, 300);
+    }
+
+    // Init
+    window.onload = function() {
+      regenerateExam();
+    };
+  </script>
+</body>
+</html>
