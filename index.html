@@ -225,7 +225,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18" />
           </svg>
-          🎲 一鍵隨機更新全篇
+          🎲 一鍵隨機更新全篇 (10套循環)
         </button>
 
         <!-- Print Action -->
@@ -468,7 +468,7 @@
         </div>
 
         <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200/80">
-          <p class="text-xs text-slate-500 mb-4 italic">Note: These answers dynamically correspond to the current randomized question sets (Sets 1 to 5).</p>
+          <p class="text-xs text-slate-500 mb-4 italic">Note: These answers dynamically correspond to the current randomized question sets (Sets 1 to 10).</p>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
             <!-- Left Column: Parts A, B & C -->
@@ -501,7 +501,7 @@
                   <li>(2) &nbsp;<span id="ans-c-2" class="text-rose-600 font-bold">---</span></li>
                   <li>(3) &nbsp;<span id="ans-c-3" class="text-rose-600 font-bold">---</span></li>
                   <li>(4) &nbsp;<span id="ans-c-4" class="text-rose-600 font-bold">---</span></li>
-                  <li>(5) &nbsp;<span id="ans-c-5" class="text-rose-600 font-bold">---</span> <span class="text-xs text-slate-400 font-normal font-sans">(or does not have)</span></li>
+                  <li>(5) &nbsp;<span id="ans-c-5" class="text-rose-600 font-bold">---</span></li>
                 </ol>
               </div>
             </div>
@@ -513,7 +513,7 @@
                 <ol class="list-decimal list-inside space-y-1 text-slate-800 font-semibold font-handwriting text-base">
                   <li>(1) &nbsp;<span id="ans-d-1" class="text-rose-600 font-bold">---</span></li>
                   <li>(2) &nbsp;<span id="ans-d-2" class="text-rose-600 font-bold">---</span></li>
-                  <li>(3) &nbsp;<span id="ans-d-3" class="text-rose-600 font-bold">---</span> <span class="text-xs text-slate-400 font-normal font-sans">(or is not running/writing/drawing/watching)</span></li>
+                  <li>(3) &nbsp;<span id="ans-d-3" class="text-rose-600 font-bold">---</span></li>
                   <li>(4) &nbsp;<span id="ans-d-4" class="text-rose-600 font-bold">---</span></li>
                   <li>(5) &nbsp;<span id="ans-d-5" class="text-rose-600 font-bold">---</span></li>
                 </ol>
@@ -571,7 +571,7 @@
     let isAnswersVisible = false;
     let isInteractiveMode = true;
 
-    // Selected indices for current generation (0 to 4 for each part)
+    // Selected indices for current generation (0 to 9 for 10 distinct sets!)
     let currentIndices = {
       a: 0,
       b: 0,
@@ -580,218 +580,388 @@
       e: 0
     };
 
-    // Database containing exactly 5 sets of completely different paragraph scenarios for ALL PARTS!
+    // Database containing exactly 10 sets of completely different paragraph scenarios for ALL PARTS!
     const EXAM_DATABASE = {
       // PART A: Verb "to be" and "to have" (4 targets: 8 marks)
       // Standard targets schema: [0]: is, [1]: have, [2]: is, [3]: hasn't
       partA: [
-        {
+        { // Set 1
           answers: ["is", "have", "is", "hasn't"],
           text: `My family and I are at the zoo today. It (1) [A-1] a sunny morning. We (2) [A-2] got some delicious bananas for the monkeys. My little brother, Toby, (3) [A-3] very excited, but he (4) [A-4] got his cap because he left it in the car. Luckily, my parents have an extra umbrella!`
         },
-        {
+        { // Set 2
           answers: ["is", "have", "is", "hasn't"],
           text: `Welcome to my cozy bedroom! This room (1) [A-1] very tidy. My sister and I (2) [A-2] got a big white toy box. Whiskers, my sleepy orange cat, (3) [A-3] fast asleep on the rug. He (4) [A-4] got any energy today because he was playing all night. He is so lazy!`
         },
-        {
+        { // Set 3
           answers: ["is", "have", "is", "hasn't"],
           text: `Everyone (1) [A-1] busy in our warm kitchen. My grandparents (2) [A-2] got lots of fresh red apples to make sweet pies. The oven (3) [A-3] preheated and hot, but my sister (4) [A-4] got her cooking apron ready yet. She is still washing her hands under the tap.`
         },
-        {
+        { // Set 4
           answers: ["is", "have", "is", "hasn't"],
           text: `Our after-school art club (1) [A-1] super interesting. We (2) [A-2] got colorful clay and shiny stickers. The teacher (3) [A-3] helpful, but Leo (4) [A-4] got his pencil case with him. He needs to borrow some crayons from his classmates.`
         },
-        {
+        { // Set 5
           answers: ["is", "have", "is", "hasn't"],
           text: `The weather in Hong Kong (1) [A-1] perfectly cool today. My friendly parents (2) [A-2] got a big waterproof picnic blanket for us. The grass (3) [A-3] safe and green, but my baby brother (4) [A-4] got his shoes on! He loves walking barefoot on the soft grass.`
+        },
+        { // Set 6
+          answers: ["is", "have", "is", "hasn't"],
+          text: `Our school library (1) [A-1] quiet and peaceful today. My classmates and I (2) [A-2] got many interesting storybooks to read. The kind librarian (3) [A-3] very helpful, but Leo (4) [A-4] got his library card with him. He must borrow a book next time.`
+        },
+        { // Set 7
+          answers: ["is", "have", "is", "hasn't"],
+          text: `My little rabbit, Fluffy, (1) [A-1] a very active pet. My parents and I (2) [A-2] got a large wooden hutch in the garden. Its fur (3) [A-3] soft and white, but it (4) [A-4] got its dinner yet. I need to feed it some crunchy carrots now.`
+        },
+        { // Set 8
+          answers: ["is", "have", "is", "hasn't"],
+          text: `This toy shop (1) [A-1] the biggest one in town. My best friends (2) [A-2] got enough coins for the claw machine. The shop owner (3) [A-3] very polite, but my little sister (4) [A-4] got her teddy bear. She wants to find it quickly.`
+        },
+        { // Set 9
+          answers: ["is", "have", "is", "hasn't"],
+          text: `The new sports center (1) [A-1] very big. The school athletes (2) [A-2] got professional swimming goggles for the race. The water (3) [A-3] warm and clean, but the goalkeeper (4) [A-4] got his uniform ready. He is still in the changing room.`
+        },
+        { // Set 10
+          answers: ["is", "have", "is", "hasn't"],
+          text: `Our primary school garden (1) [A-1] full of sweet flowers. The green plants (2) [A-2] got lots of water this morning. The soil (3) [A-3] wet and healthy, but my partner (4) [A-4] got his garden gloves on. He is afraid of getting dirty.`
         }
       ],
 
       // PART B: Subject/Object Pronouns & Possessive Adjectives (5 targets: 10 marks)
-      // Standard target answers schema: [0]: Possessive/Subject, [1]: us, [2]: it, [3]: him/her, [4]: our
       partB: [
-        {
+        { // Set 1
           answers: ["Its", "us", "it", "him", "our"],
           text: `Toby has a cute dog. (1) [B-1] name is Buddy. Toby and I love Buddy very much. Toby's friendly parents often take (2) [B-2] to the grassy park to play. Yesterday, Toby threw a small red ball, and Buddy quickly ran after (3) [B-3]. When Buddy brought the ball back, Toby patted (4) [B-4] gently on the head. We always enjoy (5) [B-5] lovely weekends together.`
         },
-        {
+        { // Set 2
           answers: ["His", "us", "him", "it", "our"],
           text: `I have a polite classmate. (1) [B-1] name is Lucas. The teacher introduced Lucas to (2) [B-2] during the morning assembly today. Lucas showed me a beautiful drawing of a rocket, and I praised (3) [B-3] for the great work. Lucas likes the drawing so much that he keeps (4) [B-4] carefully in a blue folder. We will definitely invite Lucas to join (5) [B-5] fun game tomorrow.`
         },
-        {
+        { // Set 3
           answers: ["Her", "us", "it", "her", "our"],
           text: `My sweet sister and I love grandma. (1) [B-1] blueberry muffins are absolutely delicious. Grandma always teaches (2) [B-2] how to bake sweet treats on Saturdays. Yesterday, Grandma gave my sister a fresh strawberry, and my sister ate (3) [B-3] in one bite. Then we hugged (4) [B-4] tightly to say thank you. We really treasure (5) [B-5] warm family baking days.`
         },
-        {
+        { // Set 4
           answers: ["Their", "us", "it", "him", "our"],
           text: `Look at those wonderful parrots! (1) [B-1] feathers are incredibly colorful. The kind zookeeper shows (2) [B-2] how they fly up high. A little green parrot landed on my brother's shoulder, so I fed (3) [B-3] some seeds. My brother wanted to keep the parrot, but the zookeeper stopped (4) [B-4] because birds should live freely. We enjoyed (5) [B-5] educational trip to the park.`
         },
-        {
+        { // Set 5
           answers: ["Her", "her", "it", "us", "our"],
           text: `Sally is crying near the school gate. (1) [B-1] favorite stripy pencil case is missing. Sally's caring friends are helping (2) [B-2] search the classrooms. Finally, we found the pencil case under a teacher's desk and returned (3) [B-3] to Sally. Sally smiled happily and thanked (4) [B-4] for the great help. We all love (5) [B-5] friendly and helpful school community.`
+        },
+        { // Set 6
+          answers: ["His", "us", "it", "him", "our"],
+          text: `My father has a fast bicycle. (1) [B-1] wheels are shiny and black. He often teaches (2) [B-2] how to ride on weekends. Yesterday, my father rode up a steep hill, and we cheered for (3) [B-3] loudly. When he reached the top, we gave (4) [B-4] a bottle of cold water. We always love (5) [B-5] healthy cycling trips together.`
+        },
+        { // Set 7
+          answers: ["Her", "me", "it", "her", "our"],
+          text: `My sister Lily is a great artist. (1) [B-1] drawings are extremely beautiful. She always invites (2) [B-2] to paint in her room. Last night, Lily painted a large green tree, and she hung (3) [B-3] on the living room wall. My parents praised (4) [B-4] for the brilliant painting. We truly enjoy (5) [B-5] creative art sessions at home.`
+        },
+        { // Set 8
+          answers: ["Its", "us", "it", "him", "our"],
+          text: `The school has a tiny turtle. (1) [B-1] shell is hard and bumpy. The science teacher showed (2) [B-2] how the turtle walks. A student dropped a small green leaf, and the turtle crawled slowly towards (3) [B-3]. The teacher gently lifted (4) [B-4] so we could see its claws. We had a great time during (5) [B-5] interesting science lesson.`
+        },
+        { // Set 9
+          answers: ["Their", "us", "it", "her", "our"],
+          text: `Look at those busy ants! (1) [B-1] nest is built under the big rock. The science teacher guided (2) [B-2] to watch them work. One small ant carried a breadcrumb, and it dragged (3) [B-3] slowly. My classmate Lily tried to touch the ant, but the teacher stopped (4) [B-4] to keep the ants safe. We wrote about the ants in (5) [B-5] school notebooks.`
+        },
+        { // Set 10
+          answers: ["His", "me", "it", "him", "our"],
+          text: `My classmate Ken is very generous. (1) [B-1] pencil box is packed with colorful pens. He happily lent (2) [B-2] a bright yellow highlighter today. I used the highlighter to mark my English book, and I returned (3) [B-3] to Ken after class. The English teacher thanked (4) [B-4] for sharing his stationary. We always support each other in (5) [B-5] friendly classroom.`
         }
       ],
 
       // PART C: Present Simple (5 targets: 10 marks)
       partC: [
-        {
+        { // Set 1
           sender: "Betty",
           receiver: "Shirley",
-          instruction: "Read the letter from Betty to Shirley. Fill in the blanks with correct verb forms.",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
           answers: ["go", "likes", "have", "sings", "doesn't have"],
           text: `How are you? I hope you are having fun at school!
 
-          Every Sunday, my sweet family and I (1) [C-1] (go) to the countryside. My creative father (2) [C-2] (like) taking photos of wild birds. We usually (3) [C-3] (have) a delicious picnic under a huge oak tree.
+          Every Sunday, my sweet family and I (1) [C-1] to the countryside. My creative father (2) [C-2] taking photos of wild birds. We usually (3) [C-3] a delicious picnic under a huge oak tree.
 
-          My adorable little sister, Amy, always (4) [C-4] (sing) cheerful songs while we eat. She is so little that she (5) [C-5] (not have) any worries at all!
-
-          Write back to me soon!`
+          My adorable little sister, Amy, always (4) [C-4] cheerful songs while we eat. She is so little that she (5) [C-5] any worries at all!`
         },
-        {
+        { // Set 2
           sender: "Jack",
           receiver: "Tom",
-          instruction: "Read the letter from Jack to Tom. Fill in the blanks with correct verb forms.",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
           answers: ["wake", "cleans", "have", "jumps", "doesn't like"],
           text: `How is your week going? Let me tell you about my morning routine!
 
-          Every morning, my brothers and I (1) [C-1] (wake) up early at six o'clock. My hardworking mother quickly (2) [C-2] (clean) the kitchen while we get dressed. Then, we (3) [C-3] (have) a healthy breakfast of milk and cereal.
+          Every morning, my brothers and I (1) [C-1] up early at six o'clock. My hardworking mother quickly (2) [C-2] the kitchen while we get dressed. Then, we (3) [C-3] a healthy breakfast of milk and cereal.
 
-          Our pet dog, Sparky, always (4) [C-4] (jump) around my feet because he wants food. However, our lazy cat (5) [C-5] (not like) to get up before noon!
-
-          What do you do in the morning?`
+          Our pet dog, Sparky, always (4) [C-4] around my feet because he wants food. However, our lazy cat (5) [C-5] to get up before noon!`
         },
-        {
+        { // Set 3
           sender: "Ada",
           receiver: "Joy",
-          instruction: "Read the letter from Ada to Joy. Fill in the blanks with correct verb forms.",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
           answers: ["visit", "plays", "eat", "likes", "doesn't write"],
           text: `I hope you are doing well! Here is some news from my weekend.
 
-          On Saturdays, my lovely cousins always (1) [C-1] (visit) my home. My older sister (2) [C-2] (play) board games with them in the living room. At noon, we all (3) [C-3] (eat) yummy ham and cheese sandwiches.
+          On Saturdays, my lovely cousins always (1) [C-1] my home. My older sister (2) [C-2] board games with them in the living room. At noon, we all (3) [C-3] yummy ham and cheese sandwiches.
 
-          My cousin Toby (4) [C-4] (like) reading comic books on our big sofa. He is very quiet, but he (5) [C-5] (not write) letters often because he is too busy with his homework!
-
-          Do you visit your cousins too?`
+          My cousin Toby (4) [C-4] reading comic books on our big sofa. He is very quiet, but he (5) [C-5] letters often because he is too busy with his homework!`
         },
-        {
+        { // Set 4
           sender: "Toby",
           receiver: "Leo",
-          instruction: "Read the letter from Toby to Leo. Fill in the blanks with correct verb forms.",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
           answers: ["stay", "goes", "have", "bakes", "doesn't watch"],
           text: `Greetings from Grandma's house! I am having a wonderful holiday here.
 
-          During long school holidays, my parents and I (1) [C-1] (stay) at Grandma's house. My grandfather (2) [C-2] (go) for a brisk walk every afternoon. They (3) [C-3] (have) a beautiful garden full of sweet-smelling roses.
+          During long school holidays, my parents and I (1) [C-1] at Grandma's house. My grandfather (2) [C-2] for a brisk walk every afternoon. They (3) [C-3] a beautiful garden full of sweet-smelling roses.
 
-          My grandmother (4) [C-4] (bake) chocolate chip cookies for us every afternoon. She is very healthy because she (5) [C-5] (not watch) TV. Instead, she prefers reading books!
-
-          Tell me about your holidays!`
+          My grandmother (4) [C-4] chocolate chip cookies for us every afternoon. She is very healthy because she (5) [C-5] TV. Instead, she prefers reading books!`
         },
-        {
+        { // Set 5
           sender: "Emily",
           receiver: "Fiona",
-          instruction: "Read the letter from Emily to Fiona. Fill in the blanks with correct verb forms.",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
           answers: ["walk", "runs", "have", "sings", "doesn't like"],
           text: `Hello! I am so happy to write this short letter to you.
 
-          After school, my best classmates and I (1) [C-1] (walk) to the nearby park. My energetic brother, Leo, always (2) [C-2] (run) around the grassy field to catch dragonflies. We (3) [C-3] (have) a wonderful time together.
+          After school, my best classmates and I (1) [C-1] to the nearby park. My energetic brother, Leo, always (2) [C-2] around the grassy field to catch dragonflies. We (3) [C-3] a wonderful time together.
 
-          My classmate, Lily, (4) [C-4] (sing) beautiful nursery rhymes under the shade. The park is wonderful, but my brother (5) [C-5] (not like) hot rainy days because he cannot play outside.
+          My classmate, Lily, (4) [C-4] beautiful nursery rhymes under the shade. The park is wonderful, but my brother (5) [C-5] hot rainy days because he cannot play outside.`
+        },
+        { // Set 6
+          sender: "Sam",
+          receiver: "Ben",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
+          answers: ["wash", "likes", "have", "paints", "doesn't like"],
+          text: `I hope you are having a nice day!
 
-          Let's go to the park together next week!`
+          Every Saturday morning, my busy brothers and I (1) [C-1] the family car. My helpful father always (2) [C-2] cleaning the windows with soapy water. We (3) [C-3] a fun time splashing each other.
+
+          My creative sister, Lucy, usually (4) [C-4] a colorful picture on a paper plate while we work. She is very sweet, but she (5) [C-5] getting her hands dirty!`
+        },
+        { // Set 7
+          sender: "Paul",
+          receiver: "Ken",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
+          answers: ["study", "helps", "have", "reads", "doesn't watch"],
+          text: `Greetings from the school library! I am doing my homework now.
+
+          Every afternoon, my polite classmates and I (1) [C-1] together here. Our kind teacher, Miss Wong, always (2) [C-2] us with difficult English words. We (3) [C-3] access to many wonderful storybooks.
+
+          My best friend, Toby, often (4) [C-4] adventure stories quietly in the corner. He loves books so much that he (5) [C-5] television at home!`
+        },
+        { // Set 8
+          sender: "Gaby",
+          receiver: "Tina",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
+          answers: ["drink", "loves", "have", "plays", "doesn't eat"],
+          text: `I am having a wonderful afternoon at my cousin's apartment.
+
+          Every afternoon, my cousins and I (1) [C-1] sweet fruit juice. My playful cousin, Leo, (2) [C-2] chasing his tail-wagging puppy. They (3) [C-3] a very spacious balcony for games.
+
+          Our pet dog, Buddy, always (4) [C-4] with a squeaky toy ball on the grass. He is very active, but he (5) [C-5] any snacks before his dinner time!`
+        },
+        { // Set 9
+          sender: "Hugo",
+          receiver: "Ivan",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
+          answers: ["make", "teaches", "have", "draws", "doesn't cry"],
+          text: `I want to share my weekend art class experience with you!
+
+          On Sunday mornings, my talented classmates and I (1) [C-1] clay models. Our patient art teacher (2) [C-2] us how to shape cute animals. We (3) [C-3] lots of fun mixing bright colors.
+
+          My baby brother, Toby, always (4) [C-4] funny cartoons on the whiteboard. He is very cheerful and (5) [C-5] even when he spills his paint!`
+        },
+        { // Set 10
+          sender: "Chloe",
+          receiver: "Amy",
+          instruction: "Read the letter. Fill in the blanks with correct Present Simple verb forms.",
+          answers: ["cook", "enjoys", "have", "cleans", "doesn't want"],
+          text: `I am helping my grandparents do housework today!
+
+          Every weekend, my sweet family and I (1) [C-1] a delicious lunch together. My grandmother really (2) [C-2] making traditional chicken soup. We (3) [C-3] a wonderful family gathering.
+
+          My helpful father always (4) [C-4] the dining table after we finish. He is very kind, but he (5) [C-5] to wash the oily plates alone!`
         }
       ],
 
       // PART D: Present Continuous (Emily and Ada dialogue: 5 targets: 10 marks)
       partD: [
-        {
+        { // Set 1
           scenario: "Emily and Ada are in the park now.",
           answers: ["is climbing", "are running", "isn't running", "is lying", "is listening"],
           dialogue: [
             { speaker: "Emily", text: `Look, Ada! The morning sun is shining beautifully. What is that little boy doing over there near the slide?` },
-            { speaker: "Ada", text: `Oh! He (1) [D-1] (climb) the tall oak tree. Oh dear, I hope he is careful!` },
-            { speaker: "Emily", text: `Yes! And look at those playful dogs on the grass. They (2) [D-2] (run) quickly after a yellow butterfly.` },
+            { speaker: "Ada", text: `Oh! He (1) [D-1] the tall oak tree. Oh dear, I hope he is careful!` },
+            { speaker: "Emily", text: `Yes! And look at those playful dogs on the grass. They (2) [D-2] quickly after a yellow butterfly.` },
             { speaker: "Ada", text: `Wait, where is Sally? Is she running with the dogs too?` },
-            { speaker: "Emily", text: `No, she (3) [D-3] (not run) now. She (4) [D-4] (lie) peacefully on the cool grass under the shade. She (5) [D-5] (listen) to her favorite music on the radio.` }
+            { speaker: "Emily", text: `No, she (3) [D-3] now. She (4) [D-4] peacefully on the cool grass under the shade. She (5) [D-5] to her favorite music on the radio.` }
           ]
         },
-        {
+        { // Set 2
           scenario: "Emily and Ada are in the school playground during recess.",
           answers: ["is sitting", "are playing", "isn't writing", "is sleeping", "is tying"],
           dialogue: [
             { speaker: "Emily", text: `Ada, recess is so much fun today! Everyone is busy. Look at our teacher Miss Chan.` },
-            { speaker: "Ada", text: `Yes, she (1) [D-1] (sit) on the wooden bench watching the kids. Over there, the boys (2) [D-2] (play) basketball.` },
+            { speaker: "Ada", text: `Yes, she (1) [D-1] on the wooden bench watching the kids. Over there, the boys (2) [D-2] basketball.` },
             { speaker: "Emily", text: `What about Toby? Is he doing his English homework?` },
-            { speaker: "Ada", text: `No, he (3) [D-3] (not write) anything. He (4) [D-4] (sleep) with his head on the desk because he is tired. And look at Leo, he (5) [D-5] (tie) his shoelaces near the door.` }
+            { speaker: "Ada", text: `No, he (3) [D-3] anything. He (4) [D-4] with his head on the desk because he is tired. And look at Leo, he (5) [D-5] his shoelaces near the door.` }
           ]
         },
-        {
+        { // Set 3
           scenario: "Emily and Ada are in the classroom during an art lesson.",
           answers: ["is cutting", "are drawing", "isn't drawing", "is writing", "is tying"],
           dialogue: [
             { speaker: "Emily", text: `This art room is so colorful! Look at what Sally is doing with her scissors.` },
-            { speaker: "Ada", text: `Wow, she (1) [D-1] (cut) the stripy paper to make a fish! And the boys at the back (2) [D-2] (draw) huge dinosaurs.` },
+            { speaker: "Ada", text: `Wow, she (1) [D-1] the stripy paper to make a fish! And the boys at the back (2) [D-2] huge dinosaurs.` },
             { speaker: "Emily", text: `Is Ken drawing a dinosaur too?` },
-            { speaker: "Ada", text: `No, he (3) [D-3] (not draw) at all. He (4) [D-4] (write) a thank-you letter to his mom. Oh, and our teacher (5) [D-5] (tie) a ribbon around a big gift box.` }
+            { speaker: "Ada", text: `No, he (3) [D-3] at all. He (4) [D-4] a thank-you letter to his mom. Oh, and our teacher (5) [D-5] a ribbon around a big gift box.` }
           ]
         },
-        {
+        { // Set 4
           scenario: "Emily and Ada are watching the school Sports Day.",
           answers: ["is winning", "are cheering", "isn't running", "is sitting", "is listening"],
           dialogue: [
             { speaker: "Emily", text: `Ada! The 100-meter race is starting! Look at Leo go!` },
-            { speaker: "Ada", text: `Oh my! He is so fast. He (1) [D-1] (win) the race! All the teachers (2) [D-2] (cheer) for him loudly!` },
+            { speaker: "Ada", text: `Oh my! He is so fast. He (1) [D-1] the race! All the teachers (2) [D-2] for him loudly!` },
             { speaker: "Emily", text: `Is Toby in the race too?` },
-            { speaker: "Ada", text: `No, Toby (3) [D-3] (not run) today because his leg hurts. He (4) [D-4] (sit) quietly on the bench. He (5) [D-5] (listen) to the principal's encouraging words.` }
+            { speaker: "Ada", text: `No, Toby (3) [D-3] today because his leg hurts. He (4) [D-4] quietly on the bench. He (5) [D-5] to the principal's encouraging words.` }
           ]
         },
-        {
+        { // Set 5
           scenario: "Emily and Ada are at home on a rainy Saturday.",
           answers: ["is baking", "are sitting", "isn't watching", "is lying", "is listening"],
           dialogue: [
             { speaker: "Emily", text: `The rain is so heavy outside, Ada! But it is cozy inside. Smell that!` },
-            { speaker: "Ada", text: `Yum! Mom (1) [D-1] (bake) apple pies in the kitchen. My brothers (2) [D-2] (sit) near the warm fireplace.` },
+            { speaker: "Ada", text: `Yum! Mom (1) [D-1] apple pies in the kitchen. My brothers (2) [D-2] near the warm fireplace.` },
             { speaker: "Emily", text: `Is your dog watching the rain outside too?` },
-            { speaker: "Ada", text: `No, he (3) [D-3] (not watch) the window. He (4) [D-4] (lie) comfortably under my desk. He (5) [D-5] (listen) to the soothing sound of the rain.` }
+            { speaker: "Ada", text: `No, he (3) [D-3] the window. He (4) [D-4] comfortably under my desk. He (5) [D-5] to the soothing sound of the rain.` }
+          ]
+        },
+        { // Set 6
+          scenario: "Emily and Ada are in the classroom during recess.",
+          answers: ["is painting", "are drawing", "isn't playing", "is sitting", "is listening"],
+          dialogue: [
+            { speaker: "Emily", text: `Look, Ada! The art corner is so busy today. What is Sally doing with her watercolors?` },
+            { speaker: "Ada", text: `Oh! She (1) [D-1] a beautiful sunset. It looks amazing!` },
+            { speaker: "Emily", text: `Yes! And look at those boys near the window. They (2) [D-2] a huge blue rocket.` },
+            { speaker: "Ada", text: `Is Toby playing with the rocket drawing too?` },
+            { speaker: "Emily", text: `No, he (3) [D-3] with them right now. He (4) [D-4] quietly at his desk. He (5) [D-5] to a fairy tale on his headphones.` }
+          ]
+        },
+        { // Set 7
+          scenario: "Emily and Ada are visiting a sports park today.",
+          answers: ["is riding", "are swimming", "isn't running", "is resting", "is watching"],
+          dialogue: [
+            { speaker: "Emily", text: `Wow, this sports park has so many active people! Look at that girl on the bicycle.` },
+            { speaker: "Ada", text: `She (1) [D-1] extremely fast! And look at the kids in the pool. They (2) [D-2] happily.` },
+            { speaker: "Emily", text: `Is Toby running in the track race too?` },
+            { speaker: "Ada", text: `No, he (3) [D-3] today. He (4) [D-4] under the green tree. He (5) [D-5] the birds flying in the sky.` }
+          ]
+        },
+        { // Set 8
+          scenario: "Emily and Ada are helping tidy up the classroom.",
+          answers: ["is sweeping", "are washing", "isn't helping", "is cleaning", "is talking"],
+          dialogue: [
+            { speaker: "Emily", text: `Let's make our classroom clean and tidy! Look at Ken with the big broom.` },
+            { speaker: "Ada", text: `He (1) [D-1] the dusty floor carefully. And the girls at the back (2) [D-2] the plastic cups.` },
+            { speaker: "Emily", text: `Is Toby helping them clean the cups too?` },
+            { speaker: "Ada", text: `No, he (3) [D-3] them. He (4) [D-4] the teacher's whiteboard instead. Oh, and look at Miss Wong. She (5) [D-5] to a parent near the door.` }
+          ]
+        },
+        { // Set 9
+          scenario: "Emily and Ada are looking out of the classroom window.",
+          answers: ["is blowing", "are flying", "isn't raining", "is shining", "is smiling"],
+          dialogue: [
+            { speaker: "Emily", text: `The weather is perfect for outdoor games today! Look at the strong wind.` },
+            { speaker: "Ada", text: `Yes, it (1) [D-1] the colorful leaves off the branches. High up in the sky, three kites (2) [D-2] beautifully.` },
+            { speaker: "Emily", text: `Wait, is it starting to rain now?` },
+            { speaker: "Ada", text: `No, it (3) [D-3] at all! The sun (4) [D-4] brightly. Look at the children on the playground. Everyone (5) [D-5] so happily.` }
+          ]
+        },
+        { // Set 10
+          scenario: "Emily and Ada are in the school garden during a Science lesson.",
+          answers: ["is planting", "are watering", "isn't digging", "is crawling", "is looking"],
+          dialogue: [
+            { speaker: "Emily", text: `Look at this green patch! Our classmates are working hard. What is the teacher doing?` },
+            { speaker: "Ada", text: `She (1) [D-1] a small tomato seedling. And the boys over there (2) [D-2] the red roses.` },
+            { speaker: "Emily", text: `Is Ken digging the soil for a new tree?` },
+            { speaker: "Ada", text: `No, he (3) [D-3] the soil now. Look! A tiny caterpillar (4) [D-4] on his arm! Ken (5) [D-5] at it with great curiosity.` }
           ]
         }
       ],
 
       // PART E: Vocabulary (School Life theme: 6 targets: 12 marks)
       partE: [
-        {
+        { // Set 1
           words: ["fond", "puzzled", "afterwards", "helmet", "gymnastics", "camera", "computer", "parcel"],
           answers: ["fond", "puzzled", "afterwards", "helmet", "gymnastics", "camera"],
           text: `Today is our special school activity day! In the morning, we happily go to the IT room because all of us are very (1) [E-1] of coding games. Our friendly teacher shows us a cool robotic car, but some students look (2) [E-2] because we do not know how to start it.
 
           (3) [E-3], we go out to the playground for our physical education lesson. My classmate wears a blue (4) [E-4] because he is practicing riding a bike. My absolute favorite activity is doing (5) [E-5] on the soft mats with my friends. At the end of the day, our teacher takes a beautiful class photo using a new digital (6) [E-6]. What a wonderful day of school life!`
         },
-        {
+        { // Set 2
           words: ["pavement", "traffic light", "policeman", "lorry", "knocked", "afterwards", "restaurant", "stripy"],
           answers: ["pavement", "traffic light", "policeman", "lorry", "knocked", "afterwards"],
           text: `Every morning, my friends and I walk safely to school. We always keep to the left side of the (1) [E-1] to stay away from the road. When we reach the crosswalk, we wait patiently for the (2) [E-2] to turn green. A friendly (3) [E-3] on duty smiles at us and stops the vehicles.
 
           Suddenly, a huge yellow (4) [E-4] speeds past! Oops, a loose box fell off the truck and (5) [E-5] against a signpost. (6) [E-6], we picked up the small box and handed it to the officer. Road safety is extremely important for school kids!`
         },
-        {
+        { // Set 3
           words: ["restaurant", "seat belt", "computer", "puzzled", "sorted", "stripy", "gymnastics", "asleep"],
           answers: ["restaurant", "seat belt", "computer", "puzzled", "sorted", "stripy"],
           text: `After a busy day at school, my family decided to celebrate my good test results at a cozy (1) [E-1]. In the car, my mother reminds me to buckle up my (2) [E-2] for safety. While waiting for our dinner, my brother shows me an educational game on his (3) [E-3]. 
 
           At first, we felt (4) [E-4] by a difficult level, but our father quickly (5) [E-5] out the math problem for us. For dinner, I happily wore my lucky (6) [E-6] shirt. School life is fun, but family dinners make it even better!`
         },
-        {
+        { // Set 4
           words: ["parcel", "computer", "sorted", "puzzled", "building", "asleep", "stride", "helmet"],
           answers: ["parcel", "computer", "sorted", "puzzled", "building", "asleep"],
           text: `This morning, the mailman delivered a heavy (1) [E-1] to our school office. Our principal typed the receipt on the desk (2) [E-2] while we watched. The new library books inside were quickly (3) [E-3] and put onto the shelves by the student helpers. 
 
           One younger student looked (4) [E-4] because he couldn't find his classroom. We pointed toward the tall red (5) [E-5] across the playground. In the school garden nearby, we saw a little squirrel fast (6) [E-6] in the tree. We walked quietly so we wouldn't wake it up!`
         },
-        {
+        { // Set 5
           words: ["gymnastics", "helmet", "stride", "pavement", "policeman", "knocked", "camera", "lorry"],
           answers: ["gymnastics", "helmet", "stride", "pavement", "policeman", "knocked"],
           text: `We had an amazing PE lesson today! First, we did some safe (1) [E-1] routines. Our teacher made us wear a hard plastic (2) [E-2] for protection during the climbing test. We learned to walk with a confident (3) [E-3] across the balance beams.
 
           After the lesson, we walked along the clean school (4) [E-4] to go home. We waved to a kind (5) [E-5] who was patrolling near the school entrance. Suddenly, a playful dog ran past and (6) [E-6] over some water bottles. We laughed and helped tidy up the bottles before going home.`
+        },
+        { // Set 6
+          words: ["stride", "puzzled", "afterwards", "computer", "gymnastics", "parcel", "fond", "helmet"],
+          answers: ["stride", "puzzled", "afterwards", "computer", "gymnastics", "parcel"],
+          text: `We had a wonderful library day at school! The principal entered the library with a confident (1) [E-1] to welcome us. Some students looked (2) [E-2] because they didn't know where to find the fairy tales.
+
+          (3) [E-3], our kind librarian showed us how to use the search (4) [E-4] to find books quickly. After reading, we moved to the hall to watch senior students perform (5) [E-5] routines. At the end of the day, the school received a heavy (6) [E-6] filled with brand new toys! What an exciting day of school life!`
+        },
+        { // Set 7
+          words: ["policeman", "pavement", "traffic light", "lorry", "knocked", "afterwards", "restaurant", "stripy"],
+          answers: ["policeman", "pavement", "traffic light", "lorry", "knocked", "afterwards"],
+          text: `Our school field trip today was all about road safety! On our way, we met a friendly (1) [E-1] who taught us how to cross roads. We walked carefully on the clean (2) [E-2] and stopped before the crossing. We waited until the (3) [E-3] turned green.
+
+          Suddenly, a huge delivery (4) [E-4] turned the corner too quickly. It bumped into a trash can and (5) [E-5] it over! (6) [E-6], we helped the street cleaner pick up the plastic bottles. It was a very practical safety lesson for us!`
+        },
+        { // Set 8
+          words: ["restaurant", "seat belt", "computer", "puzzled", "sorted", "stripy", "gymnastics", "asleep"],
+          answers: ["restaurant", "seat belt", "computer", "puzzled", "sorted", "stripy"],
+          text: `Our class went to a nearby western (1) [E-1] for a cooking activity! On the school bus, our teacher reminded us to fasten our (2) [E-2] safely. At the dining table, the chef showed us the recipe on a tablet (3) [E-3].
+
+          Many of us felt (4) [E-4] about how to measure the flour, but the chef quickly (5) [E-5] out the problem by showing us a cup. To celebrate, I wore my favorite (6) [E-6] apron. Cooking is indeed a fun part of our school activities!`
+        },
+        { // Set 9
+          words: ["parcel", "computer", "sorted", "puzzled", "building", "asleep", "stride", "helmet"],
+          answers: ["parcel", "computer", "sorted", "puzzled", "building", "asleep"],
+          text: `During our morning assembly, the postman delivered a large (1) [E-1] to our school hall. The teacher quickly registered it on her laptop (2) [E-2]. Inside, there were many beautiful coloring cards, which the class monitors (3) [E-3] into different subjects.
+
+          One new classmate looked (4) [E-4] because he could not find the English room. We walked him to the academic (5) [E-5] next to the playground. On our way, we saw our class mascot cat fast (6) [E-6] under the cozy bench. We walked past very quietly!`
+        },
+        { // Set 10
+          words: ["gymnastics", "helmet", "stride", "pavement", "policeman", "knocked", "camera", "lorry"],
+          answers: ["gymnastics", "helmet", "stride", "pavement", "policeman", "knocked"],
+          text: `Today's physical education class was fantastic! First, we practiced basic (1) [E-1] jumps on the safety mats. Our teacher made each of us wear a light (2) [E-2] for protection during the balance beam test. We walked with a steady (3) [E-3] to stay balanced.
+
+          When class ended, we walked along the designated (4) [E-4] back to our classrooms. We greeted the kind (5) [E-5] who stood near our gate. Suddenly, a basketball rolled across the path and (6) [E-6] over a recycling bin. We quickly put it back up. School life is full of active days!`
         }
       ]
     };
@@ -844,12 +1014,12 @@
     // EXAM GENERATION ENGINE
     // -----------------------------------------------------------
     function regenerateExam() {
-      // Pick 5 completely independent random indices (0-4)
-      currentIndices.a = Math.floor(Math.random() * 5);
-      currentIndices.b = Math.floor(Math.random() * 5);
-      currentIndices.c = Math.floor(Math.random() * 5);
-      currentIndices.d = Math.floor(Math.random() * 5);
-      currentIndices.e = Math.floor(Math.random() * 5);
+      // Pick 10 completely independent random indices (0 to 9)
+      currentIndices.a = Math.floor(Math.random() * 10);
+      currentIndices.b = Math.floor(Math.random() * 10);
+      currentIndices.c = Math.floor(Math.random() * 10);
+      currentIndices.d = Math.floor(Math.random() * 10);
+      currentIndices.e = Math.floor(Math.random() * 10);
 
       renderExamSheet();
       resetInteractiveForm();
@@ -860,8 +1030,8 @@
       const dataA = EXAM_DATABASE.partA[currentIndices.a];
       let htmlA = dataA.text;
       for (let i = 0; i < 4; i++) {
-        // Keeps placeholder clean of any target text to ensure writing comfort on printouts
-        htmlA = htmlA.replace(`[A-${i+1}]`, `<input data-part="a" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
+        // Pure clean blanks - all hints and numbers are placed outside/inside placeholder only for online interactive mode
+        htmlA = htmlA.replace(`[A-${i+1}]`, `(${i+1}) <input data-part="a" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ✏️ ">`);
         // Sync static Key (Page 5)
         document.getElementById(`ans-a-${i+1}`).innerText = dataA.answers[i];
       }
@@ -871,7 +1041,7 @@
       const dataB = EXAM_DATABASE.partB[currentIndices.b];
       let htmlB = dataB.text;
       for (let i = 0; i < 5; i++) {
-        htmlB = htmlB.replace(`[B-${i+1}]`, `<input data-part="b" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
+        htmlB = htmlB.replace(`[B-${i+1}]`, `(${i+1}) <input data-part="b" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ✏️ ">`);
         // Sync static Key (Page 5)
         document.getElementById(`ans-b-${i+1}`).innerText = dataB.answers[i];
       }
@@ -884,11 +1054,24 @@
       document.getElementById('current-date').innerText = "30th May 2026";
       
       let htmlC = dataC.text;
-      const cHints = ["go", "like", "have", "sing", "not have", "wake", "clean", "have", "jump", "not like", "visit", "play", "eat", "like", "not write", "stay", "go", "have", "bake", "not watch", "walk", "run", "have", "sing", "not like"];
+      const cHints = [
+        // Sets 1-5
+        "go", "like", "have", "sing", "not have",
+        "wake", "clean", "have", "jump", "not like",
+        "visit", "play", "eat", "like", "not write",
+        "stay", "go", "have", "bake", "not watch",
+        "walk", "run", "have", "sing", "not like",
+        // Sets 6-10
+        "wash", "like", "have", "paint", "not like",
+        "study", "help", "have", "read", "not watch",
+        "drink", "love", "have", "play", "not eat",
+        "make", "teach", "have", "draw", "not cry",
+        "cook", "enjoy", "have", "clean", "not want"
+      ];
       const baseVerbs = cHints.slice(currentIndices.c * 5, (currentIndices.c + 1) * 5);
       for (let i = 0; i < 5; i++) {
-        // Replaced and appended hints outside the blank space for clean print view
-        htmlC = htmlC.replace(`[C-${i+1}]`, `<input data-part="c" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" _________________ ">`);
+        // Verbs hints (e.g., "(go)") are strategically placed OUTSIDE the blank so that they do not get printed on top of the dashed line!
+        htmlC = htmlC.replace(`[C-${i+1}]`, `(${i+1}) <input data-part="c" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ✏️ "> <span class="text-xs md:text-sm text-slate-500 font-sans font-normal">(${baseVerbs[i]})</span>`);
         // Sync static Key (Page 5)
         document.getElementById(`ans-c-${i+1}`).innerText = dataC.answers[i];
       }
@@ -902,7 +1085,20 @@
       const dContainer = document.getElementById('part-d-dialogue');
       dContainer.innerHTML = '';
       
-      const dHints = ["climb", "run", "not run", "lie", "listen", "sit", "play", "not write", "sleep", "tie", "cut", "draw", "not draw", "write", "tie", "win", "cheer", "not run", "sit", "listen", "bake", "sit", "not watch", "lie", "listen"];
+      const dHints = [
+        // Sets 1-5
+        "climb", "run", "not run", "lie", "listen",
+        "sit", "play", "not write", "sleep", "tie",
+        "cut", "draw", "not draw", "write", "tie",
+        "win", "cheer", "not run", "sit", "listen",
+        "bake", "sit", "not watch", "lie", "listen",
+        // Sets 6-10
+        "paint", "draw", "not play", "sit", "listen",
+        "ride", "swim", "not run", "rest", "watch",
+        "sweep", "wash", "not help", "clean", "talk",
+        "blow", "fly", "not rain", "shine", "smile",
+        "plant", "water", "not dig", "crawl", "look"
+      ];
       const baseDVerbs = dHints.slice(currentIndices.d * 5, (currentIndices.d + 1) * 5);
 
       dataD.dialogue.forEach((line, idx) => {
@@ -911,7 +1107,7 @@
         
         let processedLineText = line.text;
         for (let i = 0; i < 5; i++) {
-          processedLineText = processedLineText.replace(`[D-${i+1}]`, `<input data-part="d" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" _________________ ">`);
+          processedLineText = processedLineText.replace(`[D-${i+1}]`, `(${i+1}) <input data-part="d" data-idx="${i}" class="input-blank-large inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ✏️ "> <span class="text-xs md:text-sm text-slate-500 font-sans font-normal">(${baseDVerbs[i]})</span>`);
           // Sync static Key (Page 5)
           document.getElementById(`ans-d-${i+1}`).innerText = dataD.answers[i];
         }
@@ -934,7 +1130,7 @@
 
       let htmlE = dataE.text;
       for (let i = 0; i < 6; i++) {
-        htmlE = htmlE.replace(`[E-${i+1}]`, `<input data-part="e" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ________ ">`);
+        htmlE = htmlE.replace(`[E-${i+1}]`, `(${i+1}) <input data-part="e" data-idx="${i}" class="input-blank inline-block text-center border-b border-slate-300 focus:outline-none focus:border-indigo-500 font-bold text-indigo-600 font-handwriting" type="text" placeholder=" ✏️ ">`);
         // Sync static Key (Page 5)
         document.getElementById(`ans-e-${i+1}`).innerText = dataE.answers[i];
       }
@@ -1037,16 +1233,15 @@
         const configAnswers = EXAM_DATABASE[`part${part.toUpperCase()}`][currentIndices[part]].answers;
         let correctAnswers = [configAnswers[idx].toLowerCase()];
 
+        // Universal contraction checks to make verification extremely robust for all 10 sets
         if (configAnswers[idx].toLowerCase() === "doesn't have") {
           correctAnswers.push("does not have");
-        } else if (configAnswers[idx].toLowerCase() === "isn't running") {
-          correctAnswers.push("is not running");
-        } else if (configAnswers[idx].toLowerCase() === "isn't writing") {
-          correctAnswers.push("is not writing");
-        } else if (configAnswers[idx].toLowerCase() === "isn't drawing") {
-          correctAnswers.push("is not drawing");
-        } else if (configAnswers[idx].toLowerCase() === "isn't watching") {
-          correctAnswers.push("is not watching");
+        } else if (configAnswers[idx].toLowerCase().includes("doesn't")) {
+          correctAnswers.push(configAnswers[idx].toLowerCase().replace("doesn't", "does not"));
+        } else if (configAnswers[idx].toLowerCase().includes("isn't")) {
+          correctAnswers.push(configAnswers[idx].toLowerCase().replace("isn't", "is not"));
+        } else if (configAnswers[idx].toLowerCase().includes("aren't")) {
+          correctAnswers.push(configAnswers[idx].toLowerCase().replace("aren't", "are not"));
         }
 
         const isCorrect = correctAnswers.includes(studentAns);
@@ -1091,7 +1286,7 @@
 
       const feedbackRules = {
         'a': { title: "Verb 'to be' & 'to have'", note: "<b>單複數配合：</b><br>1. 單數主語（It / My brother / The kitchen）配合 <b>is / has</b>。<br>2. 複數主語（We / My parents / My sister and I）配合 <b>are / have</b>。<br>3. 'Have got' / 'Has got' 用於表達「擁有」。其否定句為 <b>haven't got / hasn't got</b>。" },
-        'b': { title: "Pronouns & Possessives", note: "<b>代詞三格：</b><br>1. <b>主格</b>（He, She, They, We）在動詞前作主語。<br>2. <b>賓格</b>（him, her, us, them, it）在動詞或介詞後（ran after <b>it</b>, take <b>us</b>, returned <b>it</b>）。<br>3. <b>所有格形容詞</b>（His, Her, Their, Our, Its）後面必須緊跟名詞（例如：<b>Its</b> name, <b>our</b> weekend, <b>Her</b> muffins）。" },
+        'b': { title: "Pronouns & Possessives", note: "<b>代詞三格：</b><br>1. <b>主格</b>（He, She, They, We）在動詞前作主語。<br>2. <b>賓格</b>（him, her, us, them, it）在動詞或介詞後（例如：ran after <b>it</b>, take <b>us</b>, returned <b>it</b>）。<br>3. <b>所有格形容詞</b>（His, Her, Their, Our, Its）後面必須緊跟名詞（例如：<b>Its</b> name, <b>our</b> weekend, <b>Her</b> muffins）。" },
         'c': { title: "Present Simple", note: "<b>日常規律與事實：</b><br>1. 當主語是單數第三人稱（My father, My sister, Toby）時，動詞必須加上 <b>-s / -es / -ies</b>（例如：likes, sings, cleans, goes, bakes）。<br>2. <b>複數主語</b>或第一人稱（I, We, My family and I）時，動詞保留原形。<br>3. 否定式：單數用 <b>doesn't + 動詞原形</b>（例如：doesn't have），複數用 <b>don't</b>。" },
         'd': { title: "Present Continuous (-ing) 規則", note: "<b>現在進行時規則重溫：</b><br>1. <b>雙寫字尾 + ing</b>（短元音+單輔音）：<i>climbing</i> 不雙寫；但 <i>running, sitting, cutting, winning</i> 需要雙寫尾字母。<br>2. <b>去 e 加 ing</b>：<i>writing, baking</i> 等去字尾 e。<br>3. <b>ie 變 y + ing</b>：<i>lying, tying, dying</i> 必須轉化為 y 加 -ing。<br>4. <b>首音節重音不雙寫</b>：<i>listening</i> 的重音在前面，因此直接加 -ing！" },
         'e': { title: "Vocabulary Context", note: "<b>校園生活生字意境：</b><br>1. <b>fond of</b>：非常喜愛。<br>2. <b>puzzled</b>：困惑、不解的。<br>3. <b>afterwards</b>：在那之後 / 隨後。<br>4. <b>helmet</b>：防護頭盔（騎單車或體育課安全防護用）。<br>5. <b>gymnastics</b>：體操運動。<br>6. <b>pavement</b>：人行道。<br>7. <b>traffic light</b>：紅綠燈。<br>8. <b>policeman</b>：警員。" }
